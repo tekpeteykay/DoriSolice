@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { LayoutDashboard, CalendarCheck2, Inbox, FileText, Settings } from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
+import { LayoutDashboard, CalendarCheck2, Inbox, FileText, Settings, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { createClient } from "@/lib/supabase/client";
 
 const navItems = [
   { href: "/admin", label: "Overview", icon: LayoutDashboard },
@@ -14,6 +15,20 @@ const navItems = [
 
 export function AdminShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const router = useRouter();
+
+  // The login page renders its own full-screen layout — no sidebar chrome
+  // for a page you see precisely because you're not signed in yet.
+  if (pathname === "/admin/login") {
+    return <>{children}</>;
+  }
+
+  async function handleSignOut() {
+    const supabase = createClient();
+    await supabase.auth.signOut();
+    router.push("/admin/login");
+    router.refresh();
+  }
 
   return (
     <div className="flex min-h-[calc(100vh-80px)] bg-slate-100 pt-28">
@@ -42,6 +57,12 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
           <Link href="/" className="mt-6 flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-navy-400 hover:bg-navy-50">
             <Settings className="h-4 w-4" /> Back to site
           </Link>
+          <button
+            onClick={handleSignOut}
+            className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-navy-400 hover:bg-navy-50"
+          >
+            <LogOut className="h-4 w-4" /> Sign out
+          </button>
         </nav>
       </aside>
       <main className="flex-1 px-6 py-10 md:px-10">
