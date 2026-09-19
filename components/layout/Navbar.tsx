@@ -44,10 +44,17 @@ export function Navbar({ services, settings }: { services: NavService[]; setting
           scrolled || mobileOpen ? "bg-navy-900/90 backdrop-blur-xl shadow-card-dark" : "bg-transparent"
         )}
       >
-        <div className="container flex h-20 items-center justify-between">
+        <div className="container relative flex h-20 items-center justify-between">
           <Link href="/" className="flex items-center">
             <Image src="/logo-mark.png" alt={settings.businessName} width={216} height={152} priority className="h-12 w-auto md:h-14" />
           </Link>
+
+          {/* Mobile-only search, centered in the bar but kept toward the
+              hamburger side so the two feel paired. Hidden at lg+, where the
+              full nav + the xl search box take over. */}
+          <div className="absolute left-1/2 top-1/2 w-32 -translate-x-[calc(50%-12px)] -translate-y-1/2 sm:w-44 lg:hidden">
+            <SearchBar variant="nav" placeholder={settings.searchPlaceholder} />
+          </div>
 
           <nav className="hidden items-center gap-1 lg:flex" onMouseLeave={() => setMegaOpen(null)}>
             {settings.mainNav.map((item) => {
@@ -139,24 +146,28 @@ export function Navbar({ services, settings }: { services: NavService[]; setting
                           key={item.href}
                           type="button"
                           onClick={() => setMobilePanel(item.label)}
-                          className="flex items-center justify-between rounded-xl px-4 py-3.5 text-left text-[54px] leading-tight font-medium text-white/90 hover:bg-white/10"
+                          className="flex items-center justify-between rounded-xl px-4 py-3.5 text-left text-[38px] leading-tight font-medium text-white/90 hover:bg-white/10"
                         >
                           {item.label}
-                          <ChevronRight className="h-8 w-8 shrink-0 text-white/45" />
+                          <ChevronRight className="h-6 w-6 shrink-0 text-white/45" />
                         </button>
                       ) : (
                         <Link
                           key={item.href}
                           href={item.href}
                           onClick={() => setMobileOpen(false)}
-                          className="rounded-xl px-4 py-3.5 text-[54px] leading-tight font-medium text-white/90 hover:bg-white/10"
+                          className="rounded-xl px-4 py-3.5 text-[38px] leading-tight font-medium text-white/90 hover:bg-white/10"
                         >
                           {item.label}
                         </Link>
                       );
                     })}
                   </nav>
-                  <GradientButton href={settings.navCtaHref} className="mt-4 py-[14.5px]">
+                  <GradientButton
+                    href={settings.navCtaHref}
+                    animatedIcon
+                    className="mt-4 py-[14.5px] text-[19px] md:text-[19px]"
+                  >
                     {settings.navCtaLabel}
                   </GradientButton>
                 </motion.div>

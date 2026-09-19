@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { ArrowRight } from "lucide-react";
 
@@ -8,6 +11,9 @@ interface BaseProps {
   variant?: "solid" | "outline" | "ghost" | "dark";
   size?: "sm" | "md" | "lg";
   icon?: boolean;
+  // Opt-in: instead of the default hover-only nudge, the icon drifts left-to-right
+  // and back in a continuous, subtle loop. Used sparingly on specific buttons.
+  animatedIcon?: boolean;
 }
 
 type ButtonProps = BaseProps &
@@ -22,7 +28,16 @@ const sizeClasses: Record<NonNullable<BaseProps["size"]>, string> = {
   lg: "px-8 py-4 text-base md:text-lg",
 };
 
-export function GradientButton({ children, className, variant = "solid", size = "md", icon = true, href, ...props }: ButtonProps) {
+export function GradientButton({
+  children,
+  className,
+  variant = "solid",
+  size = "md",
+  icon = true,
+  animatedIcon = false,
+  href,
+  ...props
+}: ButtonProps) {
   const base = cn(
     "group relative inline-flex items-center justify-center gap-2 rounded-full font-semibold transition-all duration-300 whitespace-nowrap",
     "focus-visible:outline-2 focus-visible:outline-offset-2",
@@ -37,7 +52,18 @@ export function GradientButton({ children, className, variant = "solid", size = 
   const content = (
     <>
       <span>{children}</span>
-      {icon && <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />}
+      {icon &&
+        (animatedIcon ? (
+          <motion.span
+            className="inline-flex shrink-0"
+            animate={{ x: [0, 5, 0] }}
+            transition={{ duration: 1.4, repeat: Infinity, ease: "easeInOut" }}
+          >
+            <ArrowRight className="h-4 w-4" />
+          </motion.span>
+        ) : (
+          <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+        ))}
     </>
   );
 

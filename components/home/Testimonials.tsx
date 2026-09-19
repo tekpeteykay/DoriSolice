@@ -79,7 +79,7 @@ export function Testimonials({ testimonials, content }: { testimonials: Testimon
   }
 
   return (
-    <section className="relative overflow-hidden pb-[120px] pt-[100px]">
+    <section className="relative overflow-hidden pb-[120px] pt-[48px] md:pt-[100px]">
       <div className="absolute inset-0 -z-10">
         <Image src="/hero-slides/slide-1-passport.jpg" alt="" fill className="scale-105 object-cover blur-sm" sizes="100vw" />
         <div className="absolute inset-0 bg-navy-900/80" />
