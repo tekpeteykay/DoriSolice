@@ -12,7 +12,14 @@ const AUTO_SCROLL_SPEED = 40;
 const NUDGE_DISTANCE = 356;
 const RESUME_DELAY_MS = 2500;
 
-export function Testimonials({ testimonials }: { testimonials: Testimonial[] }) {
+interface TestimonialsContent {
+  heading_prefix: string;
+  heading_highlight: string;
+  bottom_heading: string;
+  bottom_description: string;
+}
+
+export function Testimonials({ testimonials, content }: { testimonials: Testimonial[]; content: TestimonialsContent }) {
   // Cards are duplicated once so the track is exactly 200% wide — the
   // scroll position is looped (mod half the track width) so it always
   // lands somewhere inside a full, seamless set of cards.
@@ -92,9 +99,9 @@ export function Testimonials({ testimonials }: { testimonials: Testimonial[] }) 
             &ldquo;
           </span>
           <h2 className="text-4xl font-medium tracking-tight text-white md:text-6xl">
-            Hear it from{" "}
+            {content.heading_prefix}{" "}
             <span className="bg-[linear-gradient(to_right,#EEFFFF_0%,#5EABDD_100%)] bg-clip-text text-transparent">
-              our Clients
+              {content.heading_highlight}
             </span>
           </h2>
         </Reveal>
@@ -135,14 +142,8 @@ export function Testimonials({ testimonials }: { testimonials: Testimonial[] }) 
       </Reveal>
 
       <div className="container relative mt-16 flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
-        <h3 className="text-3xl font-bold leading-tight tracking-tight text-white md:text-4xl">
-          We did it
-          <br />
-          for others!
-        </h3>
-        <p className="max-w-md text-xs leading-relaxed text-white/70 md:text-sm">
-          These are just a few of the people we&rsquo;ve helped find clarity in UK tax, immigration and benefit matters. Every situation is different, but the goal is always the same: helping you understand exactly where you stand before you decide what to do next.
-        </p>
+        <h3 className="whitespace-pre-line text-3xl font-bold leading-tight tracking-tight text-white md:text-4xl">{content.bottom_heading}</h3>
+        <p className="max-w-md text-xs leading-relaxed text-white/70 md:text-sm">{content.bottom_description}</p>
       </div>
     </section>
   );

@@ -5,6 +5,7 @@ import { calculatorCatalogue } from "@/data/calculator-catalogue";
 import { ArrowRight } from "lucide-react";
 import { Reveal } from "@/components/ui/Reveal";
 import { getGuides, getServices } from "@/lib/cms/queries";
+import { getPageContent } from "@/lib/cms/page-content";
 
 export const metadata = { title: "Immigration" };
 export const revalidate = 60;
@@ -18,23 +19,19 @@ const routes = [
 ];
 
 export default async function ImmigrationHubPage() {
-  const [guides, services] = await Promise.all([getGuides(), getServices()]);
+  const [guides, services, content] = await Promise.all([getGuides(), getServices(), getPageContent("immigration")]);
+  const hero = content.hero as any;
 
   return (
     <div className="bg-slate-50 pb-24">
       <section className="relative overflow-hidden bg-brand-radial pb-20 pt-40 text-white">
         <div className="pointer-events-none absolute inset-0 bg-hero-grid bg-[length:44px_44px] opacity-30" />
         <div className="container relative">
-          <SectionHeader
-            tone="dark"
-            eyebrow="Immigration"
-            title="Understand the UK immigration route that applies to you."
-            description="Family visas, work visas, study, settlement and citizenship — explained in plain English, with calculators to check the numbers."
-          />
+          <SectionHeader tone="dark" eyebrow={hero.eyebrow} title={hero.heading} description={hero.description} />
           <div className="mt-8 flex flex-wrap gap-3">
-            <GradientButton href="/what-do-i-need">I&rsquo;m not sure what I need</GradientButton>
+            <GradientButton href="/what-do-i-need">{hero.button1_label}</GradientButton>
             <GradientButton href="/appointment" variant="outline">
-              Book an appointment
+              {hero.button2_label}
             </GradientButton>
           </div>
         </div>

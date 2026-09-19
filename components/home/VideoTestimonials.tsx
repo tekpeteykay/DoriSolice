@@ -19,7 +19,7 @@ function initials(name: string) {
     .toUpperCase();
 }
 
-export function VideoTestimonials({ testimonials: videoTestimonials }: { testimonials: VideoTestimonial[] }) {
+export function VideoTestimonials({ testimonials: videoTestimonials, content }: { testimonials: VideoTestimonial[]; content: { heading: string } }) {
   // Cards are duplicated once so the track is exactly 200% wide — the
   // scroll position is looped (mod half the track width) so it always
   // lands somewhere inside a full, seamless set of cards. Same approach as
@@ -96,12 +96,8 @@ export function VideoTestimonials({ testimonials: videoTestimonials }: { testimo
       <div className="container">
         <Reveal className="max-w-2xl">
           {/* Sora Regular */}
-          <h2 className="text-4xl font-normal leading-tight md:text-5xl">
-            <span className="text-gradient">
-              Don&rsquo;t take our word for it!
-              <br />
-              Hear it from others
-            </span>
+          <h2 className="whitespace-pre-line text-4xl font-normal leading-tight md:text-5xl">
+            <span className="text-gradient">{content.heading}</span>
           </h2>
         </Reveal>
       </div>

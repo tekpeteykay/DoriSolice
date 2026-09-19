@@ -2,6 +2,7 @@ import { ServiceCard } from "@/components/services/ServiceCard";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { GradientButton } from "@/components/ui/GradientButton";
 import { getServices } from "@/lib/cms/queries";
+import { getPageContent } from "@/lib/cms/page-content";
 
 const groups: { id: "immigration" | "tax" | "benefits" | "general"; label: string }[] = [
   { id: "immigration", label: "Immigration" },
@@ -13,18 +14,15 @@ export const metadata = { title: "Services" };
 export const revalidate = 60;
 
 export default async function ServicesPage() {
-  const services = await getServices();
+  const [services, content] = await Promise.all([getServices(), getPageContent("services")]);
+  const hero = content.hero as any;
+
   return (
     <div className="bg-slate-50 pb-24">
       <section className="relative overflow-hidden bg-brand-radial pb-16 pt-40 text-white">
         <div className="pointer-events-none absolute inset-0 bg-hero-grid bg-[length:44px_44px] opacity-30" />
         <div className="container relative">
-          <SectionHeader
-            tone="dark"
-            eyebrow="How we can help"
-            title="Professional help, once you know what you need."
-            description="Every service starts with understanding your situation — use our guides and calculators first, then book a consultation when you're ready."
-          />
+          <SectionHeader tone="dark" eyebrow={hero.eyebrow} title={hero.heading} description={hero.description} />
         </div>
       </section>
 
@@ -45,9 +43,9 @@ export default async function ServicesPage() {
         })}
 
         <div className="mt-16 rounded-3xl bg-navy-900 p-10 text-center text-white">
-          <p className="text-lg font-semibold">Not sure which service applies to you?</p>
+          <p className="text-lg font-semibold">{hero.cta_heading}</p>
           <div className="mt-5">
-            <GradientButton href="/what-do-i-need">Help me find the right service</GradientButton>
+            <GradientButton href="/what-do-i-need">{hero.cta_button_label}</GradientButton>
           </div>
         </div>
       </div>

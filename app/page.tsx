@@ -13,14 +13,13 @@ import { FeaturedServices } from "@/components/home/FeaturedServices";
 import { FAQPreview } from "@/components/home/FAQPreview";
 import { HomeContact } from "@/components/home/HomeContact";
 import { getHeroSlides, getUpdates, getGuides, getFaqs, getTestimonials, getVideoTestimonials, getServices } from "@/lib/cms/queries";
+import { getPageContent } from "@/lib/cms/page-content";
+import { getSiteSettings } from "@/lib/cms/site-settings";
 
-// Content here comes from the CMS — re-check it periodically, and the admin
-// panel also asks for an immediate refresh right after a save (see
-// app/api/revalidate/route.ts), so this window is really just a fallback.
 export const revalidate = 60;
 
 export default async function HomePage() {
-  const [heroSlides, updates, guides, faqs, testimonials, videoTestimonials, services] = await Promise.all([
+  const [heroSlides, updates, guides, faqs, testimonials, videoTestimonials, services, content, settings] = await Promise.all([
     getHeroSlides(),
     getUpdates(),
     getGuides(),
@@ -28,24 +27,26 @@ export default async function HomePage() {
     getTestimonials(),
     getVideoTestimonials(),
     getServices(),
+    getPageContent("home"),
+    getSiteSettings(),
   ]);
 
   return (
     <>
       <Hero slides={heroSlides} />
-      <WhatsNewIntro updates={updates} />
-      <LifeMoments />
-      <AboutIntro />
-      <PopularCalculators />
-      <ImmigrationTaxSplit />
-      <RealQuestions faqs={faqs} />
-      <GuidesPreview guides={guides} />
-      <WhyDoriSolic />
-      <Testimonials testimonials={testimonials} />
-      <VideoTestimonials testimonials={videoTestimonials} />
-      <FeaturedServices services={services} />
-      <FAQPreview faqs={faqs} />
-      <HomeContact />
+      <WhatsNewIntro updates={updates} content={content["whats-new-intro"] as any} />
+      <LifeMoments content={content["life-moments"] as any} />
+      <AboutIntro content={content["about"] as any} />
+      <PopularCalculators content={content["popular-calculators"] as any} />
+      <ImmigrationTaxSplit content={content["immigration-tax-split"] as any} />
+      <RealQuestions faqs={faqs} content={content["real-questions"] as any} />
+      <GuidesPreview guides={guides} content={content["guides-preview"] as any} />
+      <WhyDoriSolic content={content["why-dori-solic"] as any} />
+      <Testimonials testimonials={testimonials} content={content["testimonials"] as any} />
+      <VideoTestimonials testimonials={videoTestimonials} content={content["video-testimonials"] as any} />
+      <FeaturedServices services={services} content={content["featured-services"] as any} />
+      <FAQPreview faqs={faqs} content={content["faq-preview"] as any} />
+      <HomeContact settings={settings} content={content["home-contact"] as any} />
     </>
   );
 }

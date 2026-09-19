@@ -6,12 +6,15 @@ import { calculatorCatalogue } from "@/data/calculator-catalogue";
 import { CalculatorCard } from "@/components/calculators/CalculatorCard";
 import { GuideCard } from "@/components/guides/GuideCard";
 import { getGuides } from "@/lib/cms/queries";
+import { getPageContent } from "@/lib/cms/page-content";
 
 export const metadata: Metadata = { title: "Tax & Benefits" };
 export const revalidate = 60;
 
 export default async function TaxAndBenefitsPage() {
-  const guides = await getGuides();
+  const [guides, content] = await Promise.all([getGuides(), getPageContent("tax-and-benefits")]);
+  const hero = content.hero as any;
+  const section = content.content as any;
   const taxCalcs = calculatorCatalogue.filter((c) => c.category === "tax" || c.category === "salary").slice(0, 6);
   const benefitGuides = guides.filter((g) => g.category === "benefits" || g.category === "tax").slice(0, 3);
 
@@ -20,16 +23,11 @@ export default async function TaxAndBenefitsPage() {
       <section className="relative overflow-hidden bg-brand-radial pb-20 pt-40 text-white">
         <div className="pointer-events-none absolute inset-0 bg-hero-grid bg-[length:44px_44px] opacity-30" />
         <div className="container relative">
-          <SectionHeader
-            tone="dark"
-            eyebrow="Tax & Benefits"
-            title="Understand your tax, and what you may be entitled to."
-            description="From take-home pay to Universal Credit, get a clear estimate before you make a decision."
-          />
+          <SectionHeader tone="dark" eyebrow={hero.eyebrow} title={hero.heading} description={hero.description} />
           <div className="mt-8 flex flex-wrap gap-3">
-            <GradientButton href="/calculators?category=tax">Tax calculators</GradientButton>
+            <GradientButton href="/calculators?category=tax">{hero.button1_label}</GradientButton>
             <GradientButton href="/calculators?category=benefits" variant="outline">
-              Benefit calculators
+              {hero.button2_label}
             </GradientButton>
           </div>
         </div>
@@ -37,7 +35,7 @@ export default async function TaxAndBenefitsPage() {
 
       <div className="container">
         <div className="mt-14">
-          <h2 className="mb-6 text-xl font-bold text-navy-900">Popular tax &amp; salary calculators</h2>
+          <h2 className="mb-6 text-xl font-bold text-navy-900">{section.calculators_heading}</h2>
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {taxCalcs.map((c, i) => (
               <CalculatorCard key={c.slug} entry={c} index={i} />
@@ -46,7 +44,7 @@ export default async function TaxAndBenefitsPage() {
         </div>
 
         <div className="mt-16">
-          <h2 className="mb-6 text-xl font-bold text-navy-900">Guides</h2>
+          <h2 className="mb-6 text-xl font-bold text-navy-900">{section.guides_heading}</h2>
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {benefitGuides.map((g, i) => (
               <GuideCard key={g.slug} guide={g} index={i} />
@@ -56,7 +54,7 @@ export default async function TaxAndBenefitsPage() {
 
         <div className="mt-16 text-center">
           <Link href="/guides" className="text-sm font-semibold text-red-600 hover:underline">
-            Browse all guides →
+            {section.browse_all_label}
           </Link>
         </div>
       </div>

@@ -4,18 +4,20 @@ import { Badge } from "@/components/ui/Badge";
 import { formatDate } from "@/lib/utils";
 import { Reveal } from "@/components/ui/Reveal";
 import { getUpdates } from "@/lib/cms/queries";
+import { getPageContent } from "@/lib/cms/page-content";
 
 export const metadata: Metadata = { title: "Updates" };
 export const revalidate = 60;
 
 export default async function UpdatesPage() {
-  const updates = await getUpdates();
+  const [updates, content] = await Promise.all([getUpdates(), getPageContent("updates")]);
+  const hero = content.hero as any;
   return (
     <div className="bg-slate-50 pb-24">
       <section className="relative overflow-hidden bg-brand-radial pb-16 pt-40 text-white">
         <div className="pointer-events-none absolute inset-0 bg-hero-grid bg-[length:44px_44px] opacity-30" />
         <div className="container relative max-w-3xl">
-          <SectionHeader tone="dark" eyebrow="Updates" title="UK rule changes worth knowing about." description="Tax year changes, immigration rule changes, benefit changes and important deadlines." />
+          <SectionHeader tone="dark" eyebrow={hero.eyebrow} title={hero.heading} description={hero.description} />
         </div>
       </section>
 

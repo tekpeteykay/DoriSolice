@@ -1,29 +1,36 @@
-// Maps a saved/deleted CMS row to the public-facing paths that show its
-// content, so the admin can ask Next.js to refresh exactly those pages
-// after a write — see app/api/revalidate/route.ts and its callers in
-// components/admin/cms/ResourceForm.tsx and ResourceList.tsx.
-export function getPublicPaths(resourceKey: string, row: Record<string, unknown> | null | undefined): string[] {
+export interface RevalidateTarget {
+  path: string;
+  /** "layout" invalidates every page under that path's layout — used for
+   * site-wide settings (nav/footer) since they're rendered in the root
+   * layout, not any one page. Defaults to "page" (just that one URL). */
+  type?: "layout" | "page";
+}
+
+export function getPublicPaths(resourceKey: string, row: Record<string, unknown> | null | undefined): RevalidateTarget[] {
   const slug = row?.slug as string | undefined;
   const category = row?.category as string | undefined;
-
   switch (resourceKey) {
     case "services":
-      return ["/", "/services", ...(slug && category ? [`/services/${category}/${slug}`] : []), "/immigration", "/tax-and-benefits"];
+      return [{ path: "/" }, { path: "/services" }, ...(slug && category ? [{ path: `/services/${category}/${slug}` }] : []), { path: "/immigration" }, { path: "/tax-and-benefits" }];
     case "guides":
-      return ["/", "/guides", ...(slug && category ? [`/guides/${category}/${slug}`] : []), "/immigration", "/tax-and-benefits"];
+      return [{ path: "/" }, { path: "/guides" }, ...(slug && category ? [{ path: `/guides/${category}/${slug}` }] : []), { path: "/immigration" }, { path: "/tax-and-benefits" }];
     case "faqs":
-      return ["/"];
+      return [{ path: "/" }];
     case "testimonials":
-      return ["/"];
+      return [{ path: "/" }];
     case "video_testimonials":
-      return ["/"];
+      return [{ path: "/" }];
     case "updates":
-      return ["/", "/blog", "/updates"];
+      return [{ path: "/" }, { path: "/blog" }, { path: "/updates" }];
     case "hero_slides":
-      return ["/"];
+      return [{ path: "/" }];
     case "appointment_types":
-      return ["/appointment"];
+      return [{ path: "/appointment" }];
+    case "site_settings":
+      // Nav and footer render in the root layout, which wraps every page —
+      // "layout" revalidation is what actually reaches all of them.
+      return [{ path: "/", type: "layout" }];
     default:
-      return ["/"];
+      return [{ path: "/" }];
   }
 }

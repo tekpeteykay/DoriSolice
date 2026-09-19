@@ -5,10 +5,10 @@ import Link from "next/link";
 import Image from "next/image";
 import { Menu, X, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { mainNav } from "@/lib/site-config";
 import { GradientButton } from "@/components/ui/GradientButton";
 import { SearchBar } from "@/components/search/SearchBar";
 import { calculatorCategories } from "@/data/calculator-catalogue";
+import type { SiteSettings } from "@/lib/cms/site-settings";
 
 interface NavService {
   slug: string;
@@ -16,7 +16,7 @@ interface NavService {
   title: string;
 }
 
-export function Navbar({ services }: { services: NavService[] }) {
+export function Navbar({ services, settings }: { services: NavService[]; settings: SiteSettings }) {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [megaOpen, setMegaOpen] = useState<string | null>(null);
@@ -39,11 +39,11 @@ export function Navbar({ services }: { services: NavService[] }) {
     >
       <div className="container flex h-20 items-center justify-between">
         <Link href="/" className="flex items-center">
-          <Image src="/logo-mark.png" alt="Dori Solic" width={216} height={152} priority className="h-12 w-auto md:h-14" />
+          <Image src="/logo-mark.png" alt={settings.businessName} width={216} height={152} priority className="h-12 w-auto md:h-14" />
         </Link>
 
         <nav className="hidden items-center gap-1 lg:flex" onMouseLeave={() => setMegaOpen(null)}>
-          {mainNav.map((item) => {
+          {settings.mainNav.map((item) => {
             const hasMega = item.label === "Calculators" || item.label === "Services";
             return (
               <div key={item.href} className="relative" onMouseEnter={() => hasMega && setMegaOpen(item.label)}>
@@ -87,10 +87,10 @@ export function Navbar({ services }: { services: NavService[] }) {
 
         <div className="flex items-center gap-3">
           <div className="hidden w-56 xl:block">
-            <SearchBar variant="nav" />
+            <SearchBar variant="nav" placeholder={settings.searchPlaceholder} />
           </div>
-          <GradientButton href="/appointment" size="sm" className="hidden !px-3.5 sm:inline-flex">
-            Talk to Us
+          <GradientButton href={settings.navCtaHref} size="sm" className="hidden !px-3.5 sm:inline-flex">
+            {settings.navCtaLabel}
           </GradientButton>
           <button
             aria-label="Toggle menu"
@@ -105,7 +105,7 @@ export function Navbar({ services }: { services: NavService[] }) {
       {mobileOpen && (
         <div className="border-t border-white/10 bg-navy-900 px-6 pb-8 pt-4 lg:hidden">
           <nav className="flex flex-col gap-1">
-            {mainNav.map((item) => (
+            {settings.mainNav.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
@@ -116,8 +116,8 @@ export function Navbar({ services }: { services: NavService[] }) {
               </Link>
             ))}
           </nav>
-          <GradientButton href="/appointment" className="mt-4 w-full">
-            Talk to Us
+          <GradientButton href={settings.navCtaHref} className="mt-4 w-full">
+            {settings.navCtaLabel}
           </GradientButton>
         </div>
       )}

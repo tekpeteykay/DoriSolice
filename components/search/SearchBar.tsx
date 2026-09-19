@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
 
 const EXAMPLES = ["Spouse visa income requirement", "How much tax will I pay?", "Universal Credit", "Tax refund", "Skilled Worker visa"];
 
-export function SearchBar({ variant = "hero" }: { variant?: "hero" | "compact" | "nav" }) {
+export function SearchBar({ variant = "hero", placeholder = "What do you need help with?" }: { variant?: "hero" | "compact" | "nav"; placeholder?: string }) {
   const [query, setQuery] = useState("");
   const [focused, setFocused] = useState(false);
   const router = useRouter();
@@ -48,7 +48,7 @@ export function SearchBar({ variant = "hero" }: { variant?: "hero" | "compact" |
           onChange={(e) => setQuery(e.target.value)}
           onFocus={() => setFocused(true)}
           onKeyDown={(e) => e.key === "Enter" && goToSearch(query)}
-          placeholder="What do you need help with?"
+          placeholder={placeholder}
           className={cn(
             "w-full bg-transparent outline-none",
             variant === "nav" ? "text-sm" : "text-base",

@@ -15,7 +15,7 @@ import { cn } from "@/lib/utils";
 
 const CYCLE_MS = 5000;
 
-export function BlogClient({ updates }: { updates: SiteUpdate[] }) {
+export function BlogClient({ updates, heading }: { updates: SiteUpdate[]; heading: string }) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -63,7 +63,7 @@ export function BlogClient({ updates }: { updates: SiteUpdate[] }) {
     <div className="bg-navy-950 pb-24 pt-40">
       <div className="container lg:px-[60px] xl:px-[120px]">
         <Reveal>
-          <h1 className="text-gradient text-4xl font-semibold leading-tight md:text-6xl">Our Blog</h1>
+          <h1 className="text-gradient text-4xl font-semibold leading-tight md:text-6xl">{heading}</h1>
         </Reveal>
 
         <div className="mt-12 grid gap-12 lg:grid-cols-[1fr_380px] lg:gap-16 xl:gap-20">

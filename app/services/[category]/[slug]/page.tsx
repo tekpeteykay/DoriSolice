@@ -9,6 +9,7 @@ import { FAQAccordion } from "@/components/ui/FAQAccordion";
 import { CheckCircle2 } from "lucide-react";
 import { Reveal } from "@/components/ui/Reveal";
 import { getServiceBySlug, getGuides } from "@/lib/cms/queries";
+import { getPageContent } from "@/lib/cms/page-content";
 
 // No generateStaticParams here on purpose — services are CMS content now,
 // so a slug added after the last deploy still needs to resolve. Rendered
@@ -25,7 +26,8 @@ export default async function ServiceDetailPage({ params }: { params: { category
   const service = await getServiceBySlug(params.slug);
   if (!service) notFound();
 
-  const guides = await getGuides();
+  const [guides, content] = await Promise.all([getGuides(), getPageContent("service-detail")]);
+  const chrome = content.chrome as any;
   const relatedCalculators = calculatorCatalogue.filter((c) => service.relatedCalculators?.includes(c.builtId ?? "____"));
   const relatedGuides = guides.filter((g) => service.relatedGuides?.includes(g.slug));
   const faqItems = service.typicalQuestions.map((q, i) => ({ id: `${service.slug}-${i}`, category: "general" as const, question: q.question, answer: q.answer }));
@@ -45,7 +47,7 @@ export default async function ServiceDetailPage({ params }: { params: { category
             <GradientButton href="/appointment">Book an appointment</GradientButton>
             {relatedCalculators[0] && (
               <GradientButton href={`/calculators/${relatedCalculators[0].slug}`} variant="outline">
-                Try the calculator
+                {chrome.calculate_button_label}
               </GradientButton>
             )}
           </div>
@@ -55,7 +57,7 @@ export default async function ServiceDetailPage({ params }: { params: { category
       <div className="container max-w-3xl">
         <Reveal className="-mt-8 grid gap-5 rounded-4xl bg-white p-7 shadow-card md:grid-cols-2 md:p-10">
           <div>
-            <h2 className="text-xl font-bold text-navy-900">Who this is for</h2>
+            <h2 className="text-xl font-bold text-navy-900">{chrome.who_its_for_heading}</h2>
             <ul className="mt-4 space-y-3">
               {service.whoItsFor.map((item, i) => (
                 <li key={i} className="flex gap-2 text-navy-600">
@@ -65,7 +67,7 @@ export default async function ServiceDetailPage({ params }: { params: { category
             </ul>
           </div>
           <div>
-            <h2 className="text-xl font-bold text-navy-900">What we help with</h2>
+            <h2 className="text-xl font-bold text-navy-900">{chrome.what_we_help_with_heading}</h2>
             <ul className="mt-4 space-y-3">
               {service.whatWeHelpWith.map((item, i) => (
                 <li key={i} className="flex gap-2 text-navy-600">
@@ -77,7 +79,7 @@ export default async function ServiceDetailPage({ params }: { params: { category
         </Reveal>
 
         <Reveal className="mt-8 rounded-4xl bg-navy-900 p-7 text-white md:p-10">
-          <h2 className="text-xl font-bold">Our process</h2>
+          <h2 className="text-xl font-bold">{chrome.process_heading}</h2>
           <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
             {service.process.map((step, i) => (
               <div key={i} className="rounded-2xl bg-white/10 p-5">
@@ -90,7 +92,7 @@ export default async function ServiceDetailPage({ params }: { params: { category
         </Reveal>
 
         <Reveal className="mt-8 rounded-4xl bg-white p-7 shadow-card md:p-10">
-          <h2 className="text-xl font-bold text-navy-900">Documents &amp; information you may need</h2>
+          <h2 className="text-xl font-bold text-navy-900">{chrome.documents_heading}</h2>
           <ul className="mt-4 list-inside list-disc space-y-2 text-navy-600">
             {service.documentsNeeded.map((d, i) => (
               <li key={i}>{d}</li>
@@ -100,14 +102,14 @@ export default async function ServiceDetailPage({ params }: { params: { category
 
         {faqItems.length > 0 && (
           <div className="mt-8 rounded-4xl bg-white p-7 shadow-card md:p-10">
-            <h2 className="mb-6 text-xl font-bold text-navy-900">Common questions</h2>
+            <h2 className="mb-6 text-xl font-bold text-navy-900">{chrome.common_questions_heading}</h2>
             <FAQAccordion items={faqItems} />
           </div>
         )}
 
         {relatedGuides.length > 0 && (
           <div className="mt-8">
-            <h2 className="mb-4 text-xl font-bold text-navy-900">Related guides</h2>
+            <h2 className="mb-4 text-xl font-bold text-navy-900">{chrome.related_guides_heading}</h2>
             <div className="flex flex-wrap gap-2">
               {relatedGuides.map((g) => (
                 <Link key={g.slug} href={`/guides/${g.category}/${g.slug}`} className="rounded-full bg-white px-4 py-2 text-sm font-medium text-navy-700 shadow-card hover:text-red-600">
@@ -120,8 +122,8 @@ export default async function ServiceDetailPage({ params }: { params: { category
 
         <Reveal className="mt-10 flex flex-col items-start justify-between gap-4 rounded-3xl bg-navy-900 p-8 text-white sm:flex-row sm:items-center">
           <div>
-            <p className="font-semibold">Ready to talk to us?</p>
-            <p className="text-sm text-white/70">Book a consultation and we&rsquo;ll take it from here.</p>
+            <p className="font-semibold">{chrome.cta_heading}</p>
+            <p className="text-sm text-white/70">{chrome.cta_description}</p>
           </div>
           <GradientButton href="/appointment">Book an appointment</GradientButton>
         </Reveal>

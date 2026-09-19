@@ -3,57 +3,39 @@ import { ChevronRight } from "lucide-react";
 import { Reveal } from "@/components/ui/Reveal";
 import { cn } from "@/lib/utils";
 
-const moments = [
-  {
-    title: "Moving to the UK to be with someone",
-    description: "Spouse and partner visas, financial requirements, and what evidence you'll actually need.",
-    details:
-      "We help you gather the right evidence, meet the minimum income requirement, and avoid the reasons applications most often get refused.",
-    href: "/immigration",
-    tone: "navy",
-  },
-  {
-    title: "Starting a new job",
-    description: "See your real take-home pay before you say yes to the offer.",
-    details:
-      "We factor in your tax code, student loan repayments, and pension contributions, so the number you plan around is the one that actually lands in your account.",
-    href: "/calculators/salary/take-home-pay",
-    tone: "gradient",
-  },
-  {
-    title: "Settling in for the long run",
-    description: "ILR, citizenship, and understanding what 'settled' actually means.",
-    details:
-      "From counting your qualifying years to preparing for the Life in the UK test, we help you build a timeline that avoids costly gaps in your status.",
-    href: "/guides/immigration/what-is-ilr",
-    tone: "slate",
-  },
-  {
-    title: "Working things out for yourself",
-    description: "Self-employed tax, Universal Credit, and other money questions people quietly Google at midnight.",
-    details:
-      "Whether you're freelancing, driving for an app, or between jobs, we help you understand what you owe, what you're entitled to, and how the two interact.",
-    href: "/tax-and-benefits",
-    tone: "white",
-  },
-] as const;
+const TONES = ["navy", "gradient", "slate", "white"] as const;
 
-export function LifeMoments() {
+interface MomentCardData {
+  title: string;
+  description: string;
+  details: string;
+  href: string;
+}
+
+interface LifeMomentsContent {
+  heading: string;
+  subheading: string;
+  cards: MomentCardData[];
+}
+
+export function LifeMoments({ content }: { content: LifeMomentsContent }) {
+  const moments = content.cards ?? [];
+
   return (
     <section className="relative overflow-hidden bg-slate-50 pb-20 pt-10 md:pt-12">
       <div className="container relative">
         <Reveal className="mx-auto max-w-4xl text-center">
           <h2 className="text-3xl font-semibold leading-tight md:whitespace-nowrap md:text-4xl lg:text-5xl">
-            <span className="text-gradient">Life Doesn&rsquo;t Come With Categories</span>
+            <span className="text-gradient">{content.heading}</span>
           </h2>
           {/* Sora Light */}
-          <p className="mx-auto mt-4 max-w-lg text-xl font-light text-navy-900 md:text-2xl">But your situation probably sounds like one of these</p>
+          <p className="mx-auto mt-4 max-w-lg text-xl font-light text-navy-900 md:text-2xl">{content.subheading}</p>
         </Reveal>
 
         <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
           {moments.map((m, i) => (
-            <Reveal key={m.title} delay={Math.min(i, 6) * 0.08}>
-              <MomentCard moment={m} />
+            <Reveal key={`${m.title}-${i}`} delay={Math.min(i, 6) * 0.08}>
+              <MomentCard moment={m} tone={TONES[i % TONES.length]} />
             </Reveal>
           ))}
         </div>
@@ -65,15 +47,15 @@ export function LifeMoments() {
 // Card front shows the teaser, the back flips into view on hover with more
 // detail. tabIndex + group-focus gives touch devices the same interaction
 // via tap-to-focus, since they can't hover — no JS state needed.
-function MomentCard({ moment: m }: { moment: (typeof moments)[number] }) {
+function MomentCard({ moment: m, tone }: { moment: MomentCardData; tone: (typeof TONES)[number] }) {
   const toneClasses = cn(
-    m.tone === "navy" && "bg-gradient-to-b from-navy-900 to-navy-500 text-white shadow-card-dark",
-    m.tone === "gradient" && "bg-gradient-to-b from-slate-400 via-lilac-500 to-red-600 text-white shadow-glow",
-    m.tone === "slate" && "bg-slate-200 text-navy-900",
-    m.tone === "white" && "border border-navy-100 bg-white text-navy-900 shadow-card"
+    tone === "navy" && "bg-gradient-to-b from-navy-900 to-navy-500 text-white shadow-card-dark",
+    tone === "gradient" && "bg-gradient-to-b from-slate-400 via-lilac-500 to-red-600 text-white shadow-glow",
+    tone === "slate" && "bg-slate-200 text-navy-900",
+    tone === "white" && "border border-navy-100 bg-white text-navy-900 shadow-card"
   );
-  const subColor = m.tone === "white" || m.tone === "slate" ? "text-navy-500" : "text-white/75";
-  const labelColor = m.tone === "white" || m.tone === "slate" ? "text-navy-400" : "text-white/50";
+  const subColor = tone === "white" || tone === "slate" ? "text-navy-500" : "text-white/75";
+  const labelColor = tone === "white" || tone === "slate" ? "text-navy-400" : "text-white/50";
 
   return (
     <div

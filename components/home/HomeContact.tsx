@@ -3,13 +3,24 @@
 import { useState } from "react";
 import Image from "next/image";
 import { GradientButton } from "@/components/ui/GradientButton";
-import { siteConfig } from "@/lib/site-config";
+import type { SiteSettings } from "@/lib/cms/site-settings";
 import { Phone, Mail, MapPin, Clock, CheckCircle2 } from "lucide-react";
 import { Reveal } from "@/components/ui/Reveal";
 
 const ICON_GRADIENT_ID = "contact-icon-gradient";
 
-export function HomeContact() {
+interface HomeContactContent {
+  heading: string;
+  description: string;
+  button_label: string;
+  form_name_placeholder: string;
+  form_email_placeholder: string;
+  form_message_placeholder: string;
+  consent_text: string;
+  success_message: string;
+}
+
+export function HomeContact({ settings, content }: { settings: SiteSettings; content: HomeContactContent }) {
   const [submitted, setSubmitted] = useState(false);
   const [form, setForm] = useState({ name: "", email: "", message: "", consent: false });
 
@@ -44,22 +55,22 @@ export function HomeContact() {
               <Image src="/icons/faq-chevron.png" alt="" fill className="object-contain" />
             </span>
             <h2 className="text-4xl font-semibold md:text-5xl">
-              <span className="text-gradient">Get in touch</span>
+              <span className="text-gradient">{content.heading}</span>
             </h2>
           </Reveal>
           <Reveal delay={0.05}>
-            <p className="mt-5 max-w-md text-white/70">For anything urgent or specific to your case, booking an appointment is the fastest route.</p>
+            <p className="mt-5 max-w-md text-white/70">{content.description}</p>
           </Reveal>
 
           <div className="mt-12 space-y-8">
-            <ContactRow icon={Phone} label="Phone" value={siteConfig.phone} delay={0} />
-            <ContactRow icon={Mail} label="Email" value={siteConfig.email} delay={0.06} />
-            <ContactRow icon={MapPin} label="Office" value={siteConfig.address} delay={0.12} />
-            <ContactRow icon={Clock} label="Opening hours" value={siteConfig.hours} delay={0.18} />
+            <ContactRow icon={Phone} label="Phone" value={settings.phone} delay={0} />
+            <ContactRow icon={Mail} label="Email" value={settings.email} delay={0.06} />
+            <ContactRow icon={MapPin} label="Office" value={settings.address} delay={0.12} />
+            <ContactRow icon={Clock} label="Opening hours" value={settings.hours} delay={0.18} />
           </div>
 
           <Reveal delay={0.24} className="mt-12">
-            <GradientButton href="/appointment">Book an appointment instead</GradientButton>
+            <GradientButton href="/appointment">{content.button_label}</GradientButton>
           </Reveal>
         </div>
 
@@ -67,13 +78,13 @@ export function HomeContact() {
           {submitted ? (
             <div className="py-10 text-center">
               <CheckCircle2 className="mx-auto h-12 w-12 text-green-400" />
-              <p className="mt-4 font-semibold text-white">Thanks — we&rsquo;ll be in touch shortly.</p>
+              <p className="mt-4 font-semibold text-white">{content.success_message}</p>
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-5">
               <input
                 required
-                placeholder="Name"
+                placeholder={content.form_name_placeholder}
                 value={form.name}
                 onChange={(e) => setForm({ ...form, name: e.target.value })}
                 className="w-full max-w-sm rounded-full border border-white/25 bg-transparent px-6 py-4 text-white outline-none transition-colors placeholder:text-white/40 focus:border-white/60"
@@ -81,21 +92,21 @@ export function HomeContact() {
               <input
                 required
                 type="email"
-                placeholder="Email"
+                placeholder={content.form_email_placeholder}
                 value={form.email}
                 onChange={(e) => setForm({ ...form, email: e.target.value })}
                 className="w-full max-w-sm rounded-full border border-white/25 bg-transparent px-6 py-4 text-white outline-none transition-colors placeholder:text-white/40 focus:border-white/60"
               />
               <textarea
                 required
-                placeholder="Message"
+                placeholder={content.form_message_placeholder}
                 value={form.message}
                 onChange={(e) => setForm({ ...form, message: e.target.value })}
                 className="min-h-[180px] w-full max-w-sm resize-none rounded-[1.75rem] border border-white/25 bg-transparent px-6 py-4 text-white outline-none transition-colors placeholder:text-white/40 focus:border-white/60"
               />
               <label className="flex items-start gap-3 text-sm text-white/60">
                 <input required type="checkbox" checked={form.consent} onChange={(e) => setForm({ ...form, consent: e.target.checked })} className="mt-1" />
-                I consent to Dori Solic contacting me about this enquiry in line with the{" "}
+                {content.consent_text}{" "}
                 <a href="/privacy" className="underline">
                   Privacy Policy
                 </a>

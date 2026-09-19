@@ -1,18 +1,18 @@
 import type { Metadata } from "next";
 import { LegalContent } from "@/components/legal/LegalContent";
+import { getPageContent } from "@/lib/cms/page-content";
 
 export const metadata: Metadata = { title: "Cookie Policy" };
+export const revalidate = 60;
 
-export default function CookiesPage() {
+export default async function CookiesPage() {
+  const content = await getPageContent("cookies");
+  const page = content.content as { title: string; updated: string; sections: { heading: string; body: string }[] };
   return (
     <LegalContent
-      title="Cookie Policy"
-      updated="[Add date once reviewed]"
-      sections={[
-        { heading: "What are cookies", body: ["Cookies are small files stored on your device that help websites function and, where permitted, understand how they're used."] },
-        { heading: "Cookies we use", body: ["Strictly necessary cookies required for the site to function (e.g. remembering your progress through a calculator or booking flow).", "[Add details of any analytics or marketing cookies once configured, along with the relevant consent mechanism]."] },
-        { heading: "Managing cookies", body: ["You can control cookies through your browser settings. Blocking some cookies may affect how parts of the site work."] },
-      ]}
+      title={page.title}
+      updated={page.updated}
+      sections={page.sections.map((s) => ({ heading: s.heading, body: s.body.split("\n\n").filter(Boolean) }))}
     />
   );
 }

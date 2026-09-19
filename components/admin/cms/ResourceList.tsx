@@ -5,11 +5,11 @@ import Link from "next/link";
 import { Plus, Pencil, Trash2, Loader2, AlertCircle } from "lucide-react";
 import { ResourceConfig } from "@/lib/cms/types";
 import { createClient } from "@/lib/supabase/client";
-import { getPublicPaths } from "@/lib/cms/revalidate-paths";
+import { getPublicPaths, RevalidateTarget } from "@/lib/cms/revalidate-paths";
 
-async function revalidatePublicPaths(paths: string[]) {
+async function revalidatePublicPaths(targets: RevalidateTarget[]) {
   try {
-    await fetch("/api/revalidate", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ paths }) });
+    await fetch("/api/revalidate", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ targets }) });
   } catch {
     // Best-effort.
   }

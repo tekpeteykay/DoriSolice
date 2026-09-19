@@ -2,6 +2,11 @@ import { NextRequest, NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 
+interface Target {
+  path: string;
+  type?: "layout" | "page";
+}
+
 // Called by the admin panel right after a content save or delete, so the
 // public site reflects the change immediately instead of waiting for the
 // page's normal cache window to expire. Gated by the signed-in admin
@@ -18,17 +23,22 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Not signed in" }, { status: 401 });
   }
 
-  let paths: string[] = [];
+  let targets: Target[] = [];
   try {
     const body = await request.json();
-    if (Array.isArray(body.paths)) paths = body.paths.filter((p: unknown) => typeof p === "string");
+    if (Array.isArray(body.targets)) {
+      targets = body.targets.filter((t: unknown): t is Target => !!t && typeof t === "object" && typeof (t as Target).path === "string");
+    } else if (Array.isArray(body.paths)) {
+      // Back-compat with older callers that just send a plain path list.
+      targets = body.paths.filter((p: unknown): p is string => typeof p === "string").map((path: string) => ({ path }));
+    }
   } catch {
     return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
   }
 
-  for (const path of paths) {
-    revalidatePath(path);
+  for (const target of targets) {
+    revalidatePath(target.path, target.type);
   }
 
-  return NextResponse.json({ revalidated: true, paths });
+  return NextResponse.json({ revalidated: true, targets });
 }

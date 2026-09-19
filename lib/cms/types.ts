@@ -55,4 +55,11 @@ export interface ResourceConfig {
   orderBy: { column: string; ascending?: boolean };
   fields: FieldConfig[];
   defaultValues?: Record<string, unknown>;
+  /** True for a resource that's always exactly one row (e.g. site-wide
+   * settings) — the admin skips the list view and goes straight to editing
+   * that row, creating it on first save if it doesn't exist yet. */
+  singleton?: boolean;
+  /** The fixed primary-key value that row always uses. Required when
+   * singleton is true. */
+  singletonId?: string;
 }

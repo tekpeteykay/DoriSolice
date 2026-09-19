@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { LayoutDashboard, CalendarCheck2, Inbox, FileText, Settings, LogOut } from "lucide-react";
+import { LayoutDashboard, CalendarCheck2, Inbox, FileText, Layers, Settings, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/client";
 
@@ -11,6 +11,8 @@ const navItems = [
   { href: "/admin/appointments", label: "Appointments", icon: CalendarCheck2 },
   { href: "/admin/enquiries", label: "Enquiries", icon: Inbox },
   { href: "/admin/content", label: "Content & Rules", icon: FileText },
+  { href: "/admin/pages", label: "Page Content", icon: Layers },
+  { href: "/admin/content/site_settings", label: "Site Settings", icon: Settings },
 ];
 
 export function AdminShell({ children }: { children: React.ReactNode }) {

@@ -1,29 +1,18 @@
 import type { Metadata } from "next";
 import { LegalContent } from "@/components/legal/LegalContent";
+import { getPageContent } from "@/lib/cms/page-content";
 
 export const metadata: Metadata = { title: "Disclaimer" };
+export const revalidate = 60;
 
-export default function DisclaimerPage() {
+export default async function DisclaimerPage() {
+  const content = await getPageContent("disclaimer");
+  const page = content.content as { title: string; updated: string; sections: { heading: string; body: string }[] };
   return (
     <LegalContent
-      title="Disclaimer"
-      updated="[Add date once reviewed]"
-      sections={[
-        {
-          heading: "General information, not advice",
-          body: [
-            "Information provided by Dori Solic — including guides, FAQs and calculator results — is for general information and does not necessarily constitute legal, tax or financial advice. Individual circumstances may produce different outcomes.",
-          ],
-        },
-        {
-          heading: "Calculators",
-          body: [
-            "This calculator provides an estimate based on the information you enter and the rules selected. It is not an official HMRC, DWP or Home Office decision and should not be treated as legal or financial advice.",
-          ],
-        },
-        { heading: "Rules can change", body: ["UK tax, benefit and immigration rules change frequently, sometimes with little notice. Each guide and calculator shows when it was last reviewed — always confirm the current position before relying on it for an important decision."] },
-        { heading: "Regulatory information", body: ["[Add SRA or other relevant regulatory information here.]"] },
-      ]}
+      title={page.title}
+      updated={page.updated}
+      sections={page.sections.map((s) => ({ heading: s.heading, body: s.body.split("\n\n").filter(Boolean) }))}
     />
   );
 }

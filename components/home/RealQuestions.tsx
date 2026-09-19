@@ -2,18 +2,25 @@ import type { FAQ } from "@/types";
 import { GradientButton } from "@/components/ui/GradientButton";
 import { Reveal } from "@/components/ui/Reveal";
 
-export function RealQuestions({ faqs }: { faqs: FAQ[] }) {
+interface RealQuestionsContent {
+  eyebrow: string;
+  heading: string;
+  description: string;
+  button_label: string;
+}
+
+export function RealQuestions({ faqs, content }: { faqs: FAQ[]; content: RealQuestionsContent }) {
   const picks = faqs.filter((f) => ["faq-5", "faq-3", "faq-7"].includes(f.id));
 
   return (
     <section className="bg-navy-900 py-24 text-white">
       <div className="container grid items-center gap-14 lg:grid-cols-2">
         <Reveal>
-          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-red-400">People actually ask us this</p>
-          <h2 className="mt-3 text-3xl font-bold md:text-4xl">No question is too small to Google at 11pm.</h2>
-          <p className="mt-4 max-w-md text-white/70">We hear versions of these questions all the time. Chances are, if you&rsquo;re wondering, someone else asked us the same thing last week.</p>
+          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-red-400">{content.eyebrow}</p>
+          <h2 className="mt-3 text-3xl font-bold md:text-4xl">{content.heading}</h2>
+          <p className="mt-4 max-w-md text-white/70">{content.description}</p>
           <GradientButton href="/#faq" variant="outline" className="mt-8">
-            See more questions
+            {content.button_label}
           </GradientButton>
         </Reveal>
 

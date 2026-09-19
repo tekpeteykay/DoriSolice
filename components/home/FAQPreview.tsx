@@ -8,7 +8,14 @@ import { Reveal } from "@/components/ui/Reveal";
 import { GradientButton } from "@/components/ui/GradientButton";
 import { JsonLd } from "@/components/seo/JsonLd";
 
-export function FAQPreview({ faqs }: { faqs: FAQ[] }) {
+interface FAQPreviewContent {
+  heading: string;
+  cta_heading: string;
+  cta_description: string;
+  cta_button_label: string;
+}
+
+export function FAQPreview({ faqs, content }: { faqs: FAQ[]; content: FAQPreviewContent }) {
   // The full list lives here — this is the only FAQ page the site has.
   const items = faqs;
   const [openId, setOpenId] = useState<string | null>(items[0]?.id ?? null);
@@ -30,7 +37,7 @@ export function FAQPreview({ faqs }: { faqs: FAQ[] }) {
       />
       <div className="container relative max-w-3xl">
         <Reveal>
-          <h2 className="text-center text-4xl font-semibold text-white md:text-5xl">Frequently asked questions</h2>
+          <h2 className="text-center text-4xl font-semibold text-white md:text-5xl">{content.heading}</h2>
         </Reveal>
 
         <div className="mt-14">
@@ -65,10 +72,10 @@ export function FAQPreview({ faqs }: { faqs: FAQ[] }) {
 
         <Reveal delay={0.15} className="mt-12 flex flex-col items-start justify-between gap-5 rounded-3xl bg-navy-900 p-8 text-white sm:flex-row sm:items-center">
           <div>
-            <p className="font-semibold">Didn&rsquo;t find your question?</p>
-            <p className="text-sm text-white/70">Book a consultation and ask us directly.</p>
+            <p className="font-semibold">{content.cta_heading}</p>
+            <p className="text-sm text-white/70">{content.cta_description}</p>
           </div>
-          <GradientButton href="/appointment">Book an appointment</GradientButton>
+          <GradientButton href="/appointment">{content.cta_button_label}</GradientButton>
         </Reveal>
       </div>
     </section>

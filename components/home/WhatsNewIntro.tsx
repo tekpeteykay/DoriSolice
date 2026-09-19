@@ -13,38 +13,24 @@ import { scrollVariants } from "@/lib/motion-variants";
 
 const CYCLE_MS = 5000;
 
-const actions = [
-  {
-    title: "Calculate",
-    description: "Work out your tax, salary, benefits or visa figures.",
-    href: "/calculators",
-    icon: Calculator,
-    tone: "navy",
-  },
-  {
-    title: "Check eligibility",
-    description: "Find out whether you may qualify.",
-    href: "/what-do-i-need",
-    icon: ShieldCheck,
-    tone: "gradient",
-  },
-  {
-    title: "Get information",
-    description: "Understand UK rules in plain English.",
-    href: "/guides",
-    icon: BookOpenText,
-    tone: "slate",
-  },
-  {
-    title: "Book an appointment",
-    description: "Speak directly with our team.",
-    href: "/appointment",
-    icon: CalendarCheck2,
-    tone: "white",
-  },
-] as const;
+const ACTION_ICONS = [Calculator, ShieldCheck, BookOpenText, CalendarCheck2];
+const ACTION_TONES = ["navy", "gradient", "slate", "white"] as const;
 
-export function WhatsNewIntro({ updates }: { updates: SiteUpdate[] }) {
+interface ActionCard {
+  title: string;
+  description: string;
+  href: string;
+}
+
+interface WhatsNewIntroContent {
+  heading: string;
+  intro_heading: string;
+  intro_body: string;
+  prompt_label: string;
+  actions: ActionCard[];
+}
+
+export function WhatsNewIntro({ updates, content }: { updates: SiteUpdate[]; content: WhatsNewIntroContent }) {
   const [index, setIndex] = useState(0);
 
   useEffect(() => {
@@ -54,6 +40,7 @@ export function WhatsNewIntro({ updates }: { updates: SiteUpdate[] }) {
 
   const current = updates[index];
   const currentImage = current.imageUrl ?? getUpdateImage(current.slug);
+  const actions = content.actions ?? [];
 
   return (
     // Gradient fills edge-to-edge here — it's the section's own background,
@@ -63,9 +50,7 @@ export function WhatsNewIntro({ updates }: { updates: SiteUpdate[] }) {
         {/* "See What's New" strip: label beside a featured-update card that
             auto-cycles through every update, flipping down to the next one. */}
         <Reveal className="flex flex-col gap-6 md:flex-row md:items-center md:gap-10">
-          <h2 className="shrink-0 whitespace-pre-line text-3xl font-semibold leading-[1.05] text-white md:w-44 md:text-4xl">
-            {"See\nWhat's\nNew"}
-          </h2>
+          <h2 className="shrink-0 whitespace-pre-line text-3xl font-semibold leading-[1.05] text-white md:w-44 md:text-4xl">{content.heading}</h2>
           <Link
             href={`/blog?post=${current.slug}`}
             className="group flex flex-1 flex-col gap-5 overflow-hidden rounded-[1.5rem] bg-navy-950 p-6 text-white shadow-card-dark transition-colors hover:bg-navy-800 sm:flex-row sm:items-center md:rounded-[2rem] md:p-7"
@@ -119,48 +104,46 @@ export function WhatsNewIntro({ updates }: { updates: SiteUpdate[] }) {
         {/* Intro + quick-start cards, inside their own white card */}
         <Reveal delay={0.1} className="mt-6 rounded-[1.5rem] bg-white p-7 shadow-card md:mt-8 md:rounded-[2rem] md:p-14">
             <h2 className="text-center text-4xl font-semibold leading-tight md:text-5xl">
-              <span className="text-gradient">Hi, We&rsquo;re DoriSolic</span>
+              <span className="text-gradient">{content.intro_heading}</span>
             </h2>
-            <p className="mx-auto mt-6 max-w-2xl text-center text-lg leading-relaxed text-navy-600">
-              Hi, we&rsquo;re Dori Solic. We think most people don&rsquo;t need a lecture in legal jargon &mdash; they just want to know{" "}
-              <span className="font-semibold text-navy-900">where they stand</span>. So that&rsquo;s where we start: plain answers, real numbers, and a
-              friendly face when you&rsquo;re ready for one.
-            </p>
+            <p className="mx-auto mt-6 max-w-2xl text-center text-lg leading-relaxed text-navy-600">{content.intro_body}</p>
 
-            <p className="mt-10 text-center text-sm font-semibold uppercase tracking-[0.2em] text-red-600">Where do you want to start?</p>
+            <p className="mt-10 text-center text-sm font-semibold uppercase tracking-[0.2em] text-red-600">{content.prompt_label}</p>
             <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-              {actions.map((action, i) => (
-                <Reveal key={action.title} delay={i * 0.08}>
-                  <Link
-                    href={action.href}
-                    className={cn(
-                      "group relative flex h-full flex-col overflow-hidden rounded-3xl p-7 transition-all hover:-translate-y-1.5",
-                      action.tone === "navy" && "bg-navy-900 text-white shadow-card-dark",
-                      action.tone === "gradient" && "bg-brand-gradient text-white shadow-glow",
-                      action.tone === "slate" && "bg-slate-100 text-navy-900 shadow-card",
-                      // Same lift + glow hover as the site's gradient buttons — stays white, just lifts.
-                      action.tone === "white" && "border border-navy-100 bg-white text-navy-900 shadow-card hover:shadow-glow"
-                    )}
-                  >
-                    <div
+              {actions.map((action, i) => {
+                const Icon = ACTION_ICONS[i % ACTION_ICONS.length];
+                const tone = ACTION_TONES[i % ACTION_TONES.length];
+                return (
+                  <Reveal key={`${action.title}-${i}`} delay={i * 0.08}>
+                    <Link
+                      href={action.href}
                       className={cn(
-                        "flex h-12 w-12 items-center justify-center rounded-2xl",
-                        action.tone === "white" ? "bg-[linear-gradient(to_bottom,#BA0A0C_0%,#9C7FA8_50%,#3E749A_100%)] text-white" : "bg-white/15 text-white",
-                        action.tone === "slate" && "bg-navy-900/10 text-navy-900"
+                        "group relative flex h-full flex-col overflow-hidden rounded-3xl p-7 transition-all hover:-translate-y-1.5",
+                        tone === "navy" && "bg-navy-900 text-white shadow-card-dark",
+                        tone === "gradient" && "bg-brand-gradient text-white shadow-glow",
+                        tone === "slate" && "bg-slate-100 text-navy-900 shadow-card",
+                        // Same lift + glow hover as the site's gradient buttons — stays white, just lifts.
+                        tone === "white" && "border border-navy-100 bg-white text-navy-900 shadow-card hover:shadow-glow"
                       )}
                     >
-                      <action.icon className="h-6 w-6" />
-                    </div>
-                    <h3 className="mt-5 text-lg font-semibold">{action.title}</h3>
-                    <p className={cn("mt-2 flex-1 text-sm leading-relaxed", action.tone === "white" || action.tone === "slate" ? "text-navy-500" : "text-white/75")}>
-                      {action.description}
-                    </p>
-                    <span className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold">
-                      Get started <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-                    </span>
-                  </Link>
-                </Reveal>
-              ))}
+                      <div
+                        className={cn(
+                          "flex h-12 w-12 items-center justify-center rounded-2xl",
+                          tone === "white" ? "bg-[linear-gradient(to_bottom,#BA0A0C_0%,#9C7FA8_50%,#3E749A_100%)] text-white" : "bg-white/15 text-white",
+                          tone === "slate" && "bg-navy-900/10 text-navy-900"
+                        )}
+                      >
+                        <Icon className="h-6 w-6" />
+                      </div>
+                      <h3 className="mt-5 text-lg font-semibold">{action.title}</h3>
+                      <p className={cn("mt-2 flex-1 text-sm leading-relaxed", tone === "white" || tone === "slate" ? "text-navy-500" : "text-white/75")}>{action.description}</p>
+                      <span className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold">
+                        Get started <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                      </span>
+                    </Link>
+                  </Reveal>
+                );
+              })}
             </div>
           </Reveal>
       </div>

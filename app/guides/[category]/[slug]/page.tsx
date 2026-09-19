@@ -13,6 +13,7 @@ import { JsonLd } from "@/components/seo/JsonLd";
 import { siteConfig } from "@/lib/site-config";
 import { Reveal } from "@/components/ui/Reveal";
 import { getGuideBySlug, getServices } from "@/lib/cms/queries";
+import { getPageContent } from "@/lib/cms/page-content";
 
 // No generateStaticParams here on purpose — guides are CMS content now, so
 // a slug added after the last deploy still needs to resolve. Rendered on
@@ -33,7 +34,8 @@ export default async function GuidePage({ params }: { params: { category: string
   const guide = await getGuideBySlug(params.slug);
   if (!guide) notFound();
 
-  const services = await getServices();
+  const [services, content] = await Promise.all([getServices(), getPageContent("guide-detail")]);
+  const chrome = content.chrome as any;
   const relatedCalculators = calculatorCatalogue.filter((c) => guide.relatedCalculators?.includes(c.builtId ?? "____"));
   const relatedServices = services.filter((s) => guide.relatedServices?.includes(s.slug));
 
@@ -97,8 +99,8 @@ export default async function GuidePage({ params }: { params: { category: string
 
         {relatedCalculators.length > 0 && (
           <Reveal className="mt-12 rounded-3xl bg-brand-radial p-8 text-white">
-            <p className="text-sm font-semibold uppercase tracking-wide text-white/60">Put this into practice</p>
-            <h3 className="mt-2 text-2xl font-bold">Calculate your own figures</h3>
+            <p className="text-sm font-semibold uppercase tracking-wide text-white/60">{chrome.calculate_eyebrow}</p>
+            <h3 className="mt-2 text-2xl font-bold">{chrome.calculate_heading}</h3>
             <div className="mt-5 flex flex-wrap gap-3">
               {relatedCalculators.map((c) => (
                 <GradientButton key={c.slug} href={`/calculators/${c.slug}`} variant="outline">
@@ -118,15 +120,15 @@ export default async function GuidePage({ params }: { params: { category: string
 
         <Reveal className="mt-12 flex flex-col items-start justify-between gap-4 rounded-3xl bg-navy-900 p-8 text-white sm:flex-row sm:items-center">
           <div>
-            <p className="font-semibold">Need help with your specific situation?</p>
-            <p className="text-sm text-white/70">Book a consultation and we&rsquo;ll look at your circumstances directly.</p>
+            <p className="font-semibold">{chrome.cta_heading}</p>
+            <p className="text-sm text-white/70">{chrome.cta_description}</p>
           </div>
           <GradientButton href="/appointment">Book an appointment</GradientButton>
         </Reveal>
 
         {relatedServices.length > 0 && (
           <div className="mt-10">
-            <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-navy-400">Related services</p>
+            <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-navy-400">{chrome.related_services_heading}</p>
             <div className="flex flex-wrap gap-2">
               {relatedServices.map((s) => (
                 <Link key={s.slug} href={`/services/${s.category}/${s.slug}`} className="rounded-full border border-navy-200 px-4 py-2 text-sm font-medium text-navy-700 hover:border-navy-400">

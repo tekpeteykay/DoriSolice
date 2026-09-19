@@ -22,7 +22,13 @@ const categories: { id: ContentCategory | "all"; label: string }[] = [
   { id: "life-in-the-uk", label: "Life in the UK" },
 ];
 
-export function GuidesPageClient({ guides }: { guides: Guide[] }) {
+interface GuidesHeroContent {
+  eyebrow: string;
+  heading: string;
+  description: string;
+}
+
+export function GuidesPageClient({ guides, hero }: { guides: Guide[]; hero: GuidesHeroContent }) {
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState<ContentCategory | "all">("all");
 
@@ -39,12 +45,7 @@ export function GuidesPageClient({ guides }: { guides: Guide[] }) {
       <section className="relative overflow-hidden bg-brand-radial pb-16 pt-40 text-white">
         <div className="pointer-events-none absolute inset-0 bg-hero-grid bg-[length:44px_44px] opacity-30" />
         <div className="container relative">
-          <SectionHeader
-            tone="dark"
-            eyebrow="UK information hub"
-            title="Understand the rules before you need a solicitor."
-            description="Plain-English guides to UK tax, benefits, immigration and employment rights — reviewed and dated so you know what you're reading is current."
-          />
+          <SectionHeader tone="dark" eyebrow={hero.eyebrow} title={hero.heading} description={hero.description} />
         </div>
       </section>
 
