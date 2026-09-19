@@ -142,7 +142,7 @@ export function Navbar({ services, settings }: { services: NavService[]; setting
                           key={item.href}
                           type="button"
                           onClick={() => setMobilePanel(item.label)}
-                          className="flex items-center justify-between rounded-xl px-4 py-3.5 text-left text-[38px] leading-tight font-medium text-white/90 hover:bg-white/10"
+                          className="flex items-center justify-between rounded-xl px-4 py-3.5 text-left text-[26px] leading-tight font-medium text-white/90 hover:bg-white/10"
                         >
                           {item.label}
                           <ChevronRight className="h-6 w-6 shrink-0 text-white/45" />
@@ -152,7 +152,7 @@ export function Navbar({ services, settings }: { services: NavService[]; setting
                           key={item.href}
                           href={item.href}
                           onClick={() => setMobileOpen(false)}
-                          className="rounded-xl px-4 py-3.5 text-[38px] leading-tight font-medium text-white/90 hover:bg-white/10"
+                          className="rounded-xl px-4 py-3.5 text-[26px] leading-tight font-medium text-white/90 hover:bg-white/10"
                         >
                           {item.label}
                         </Link>
@@ -162,6 +162,7 @@ export function Navbar({ services, settings }: { services: NavService[]; setting
                   <GradientButton
                     href={settings.navCtaHref}
                     animatedIcon
+                    onClick={() => setMobileOpen(false)}
                     className="mt-4 py-[14.5px] text-[19px] md:text-[19px]"
                   >
                     {settings.navCtaLabel}
