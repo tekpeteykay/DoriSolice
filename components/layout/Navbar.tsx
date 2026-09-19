@@ -1,11 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
 import { Menu, X, ChevronDown, ChevronRight, ChevronLeft } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { GradientButton } from "@/components/ui/GradientButton";
 import { SearchBar } from "@/components/search/SearchBar";
 import { calculatorCategories } from "@/data/calculator-catalogue";
@@ -20,30 +19,23 @@ interface NavService {
 const MOBILE_PANEL_EASE: [number, number, number, number] = [0.16, 1, 0.3, 1];
 
 export function Navbar({ services, settings }: { services: NavService[]; settings: SiteSettings }) {
-  const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [megaOpen, setMegaOpen] = useState<string | null>(null);
   // Which nested submenu is showing on the mobile drill-down nav ("Calculators" /
   // "Services"), or null when the top-level link list is showing.
   const [mobilePanel, setMobilePanel] = useState<string | null>(null);
 
-  useEffect(() => {
-    function onScroll() {
-      setScrolled(window.scrollY > 24);
-    }
-    onScroll();
-    window.addEventListener("scroll", onScroll);
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
-
   return (
     <>
-      <header
-        className={cn(
-          "fixed inset-x-0 top-0 z-50 transition-all duration-300",
-          scrolled || mobileOpen ? "bg-navy-900/90 backdrop-blur-xl shadow-card-dark" : "bg-transparent"
-        )}
-      >
+      {/* Always the same solid/blurred navy background — never transparent.
+          It used to go transparent above the scroll threshold, which only
+          looked right on the home page (dark hero behind it). On every
+          other page, whose top section is light, that made the white nav
+          text unreadable against a white background. Keeping one consistent
+          look across every page (CMS-driven ones included, since this is
+          the single Navbar instance rendered from the root layout) avoids
+          that entirely. */}
+      <header className="fixed inset-x-0 top-0 z-50 bg-navy-900/90 shadow-card-dark backdrop-blur-xl transition-all duration-300">
         <div className="container relative flex h-20 items-center justify-between">
           <Link href="/" className="flex items-center">
             <Image src="/logo-mark.png" alt={settings.businessName} width={216} height={152} priority className="h-12 w-auto md:h-14" />
