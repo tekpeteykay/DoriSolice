@@ -6,7 +6,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { GradientButton } from "@/components/ui/GradientButton";
 import { InfinityMark } from "@/components/ui/InfinityMark";
 import type { HeroSlide } from "@/data/hero-slides";
-import { cn } from "@/lib/utils";
+import { cn, isGifUrl, isVideoUrl } from "@/lib/utils";
 
 const AUTOPLAY_MS = 6000;
 
@@ -88,7 +88,32 @@ export function Hero({ slides: heroSlides }: { slides: HeroSlide[] }) {
                   className="absolute inset-0"
                   style={{ zIndex: i === index ? 1 : 0 }}
                 >
-                  <Image src={s.image} alt={s.title} fill priority className="object-cover" sizes="(min-width: 768px) 50vw, 100vw" />
+                  {/* Banners accept a photo, a GIF, or a video interchangeably —
+                      which one this slide is decides how it's rendered. GIFs
+                      go through unoptimized (Next's image optimizer would
+                      otherwise flatten the animation to a single frame);
+                      videos get their own muted/looping <video> instead of
+                      <Image> entirely. */}
+                  {isVideoUrl(s.image) ? (
+                    <video
+                      src={s.image}
+                      autoPlay
+                      muted
+                      loop
+                      playsInline
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    <Image
+                      src={s.image}
+                      alt={s.title}
+                      fill
+                      priority
+                      unoptimized={isGifUrl(s.image)}
+                      className="object-cover"
+                      sizes="(min-width: 768px) 50vw, 100vw"
+                    />
+                  )}
                 </motion.div>
               ))}
               <div className="pointer-events-none absolute inset-0 z-[2]" style={{ background: IMAGE_OVERLAY }} />

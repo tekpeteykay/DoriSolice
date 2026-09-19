@@ -5,7 +5,7 @@ import Image from "next/image";
 import { Plus, Trash2, ChevronUp, ChevronDown, Upload, Loader2 } from "lucide-react";
 import { FieldConfig } from "@/lib/cms/types";
 import { uploadMedia } from "@/lib/cms/storage";
-import { cn } from "@/lib/utils";
+import { cn, isVideoUrl } from "@/lib/utils";
 
 const inputClass =
   "w-full rounded-xl border border-navy-100 bg-white px-3 py-2.5 text-sm text-navy-900 outline-none transition-colors focus:border-navy-400";
@@ -104,6 +104,9 @@ export function FieldInput({ field, value, onChange }: FieldInputProps) {
 
     case "video":
       return <MediaInput field={field} value={(value as string) ?? ""} onChange={onChange} accept="video/*" kind="video" />;
+
+    case "media":
+      return <MediaInput field={field} value={(value as string) ?? ""} onChange={onChange} accept="image/*,video/*" kind="auto" />;
 
     default:
       return null;
@@ -346,10 +349,26 @@ function GuideBodyInput({ value, onChange }: { value: GuideBlock[]; onChange: (v
 // ---------------------------------------------------------------------------
 // image / video — uploads to Supabase Storage, or paste a URL directly.
 // ---------------------------------------------------------------------------
-function MediaInput({ field, value, onChange, accept, kind }: { field: FieldConfig; value: string; onChange: (v: string) => void; accept: string; kind: "image" | "video" }) {
+function MediaInput({
+  field,
+  value,
+  onChange,
+  accept,
+  kind,
+}: {
+  field: FieldConfig;
+  value: string;
+  onChange: (v: string) => void;
+  accept: string;
+  kind: "image" | "video" | "auto";
+}) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // "auto" (the combined image/GIF/video field) decides how to preview
+  // purely from the uploaded file's extension — no separate toggle needed.
+  const showsAsVideo = kind === "video" || (kind === "auto" && isVideoUrl(value));
 
   async function handleFile(file: File | undefined) {
     if (!file) return;
@@ -367,12 +386,12 @@ function MediaInput({ field, value, onChange, accept, kind }: { field: FieldConf
 
   return (
     <div className="space-y-2">
-      {value && kind === "image" && (
+      {value && !showsAsVideo && (
         <div className="relative h-32 w-32 overflow-hidden rounded-xl border border-navy-100 bg-navy-50">
           <Image src={value} alt="" fill sizes="128px" className="object-cover" unoptimized />
         </div>
       )}
-      {value && kind === "video" && (
+      {value && showsAsVideo && (
         <video src={value} controls className="h-40 rounded-xl border border-navy-100 bg-black" />
       )}
 

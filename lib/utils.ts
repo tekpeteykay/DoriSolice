@@ -28,6 +28,17 @@ export function formatDate(iso: string): string {
   }
 }
 
+// Shared by the CMS media field and any public component (e.g. the hero
+// banner) that needs to render an uploaded file as either an <Image> or a
+// <video>, since one field now accepts jpg/png/gif/mp4/webm interchangeably.
+export function isVideoUrl(url: string): boolean {
+  return /\.(mp4|webm|mov|m4v|ogv)(\?.*)?(#.*)?$/i.test(url);
+}
+
+export function isGifUrl(url: string): boolean {
+  return /\.gif(\?.*)?(#.*)?$/i.test(url);
+}
+
 export function slugify(input: string): string {
   return input
     .toLowerCase()

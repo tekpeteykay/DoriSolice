@@ -17,7 +17,8 @@ export type FieldType =
   | "object-array" // e.g. [{ step, description }] — a list of small structured rows
   | "guide-body" // the guide/blog paragraph+heading+list+callout block editor
   | "image" // uploads to Supabase Storage, stores the public URL
-  | "video"; // uploads to Supabase Storage, stores the public URL
+  | "video" // uploads to Supabase Storage, stores the public URL
+  | "media"; // image, GIF, or video — uploads to Supabase Storage, previews itself based on the file type
 
 export interface SelectOption {
   value: string;
