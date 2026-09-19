@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Menu, X, ChevronDown } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
+import { Menu, X, ChevronDown, ChevronRight, ChevronLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { GradientButton } from "@/components/ui/GradientButton";
 import { SearchBar } from "@/components/search/SearchBar";
@@ -16,10 +17,15 @@ interface NavService {
   title: string;
 }
 
+const MOBILE_PANEL_EASE: [number, number, number, number] = [0.16, 1, 0.3, 1];
+
 export function Navbar({ services, settings }: { services: NavService[]; settings: SiteSettings }) {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [megaOpen, setMegaOpen] = useState<string | null>(null);
+  // Which nested submenu is showing on the mobile drill-down nav ("Calculators" /
+  // "Services"), or null when the top-level link list is showing.
+  const [mobilePanel, setMobilePanel] = useState<string | null>(null);
 
   useEffect(() => {
     function onScroll() {
@@ -95,7 +101,10 @@ export function Navbar({ services, settings }: { services: NavService[]; setting
           <button
             aria-label="Toggle menu"
             className="rounded-full p-2 text-white lg:hidden"
-            onClick={() => setMobileOpen((v) => !v)}
+            onClick={() => {
+              setMobileOpen((v) => !v);
+              setMobilePanel(null);
+            }}
           >
             {mobileOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
           </button>
@@ -103,22 +112,90 @@ export function Navbar({ services, settings }: { services: NavService[]; setting
       </div>
 
       {mobileOpen && (
-        <div className="border-t border-white/10 bg-navy-900 px-6 pb-8 pt-4 lg:hidden">
-          <nav className="flex flex-col gap-1">
-            {settings.mainNav.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                onClick={() => setMobileOpen(false)}
-                className="rounded-xl px-4 py-3 text-base font-medium text-white/85 hover:bg-white/10"
-              >
-                {item.label}
-              </Link>
-            ))}
-          </nav>
-          <GradientButton href={settings.navCtaHref} className="mt-4 w-full">
-            {settings.navCtaLabel}
-          </GradientButton>
+        <div className="fixed inset-x-0 top-20 bottom-0 z-40 overflow-hidden border-t border-white/10 bg-navy-900/55 shadow-card-dark backdrop-blur-2xl lg:hidden">
+          <div className="h-full overflow-y-auto px-6 pb-8 pt-4">
+            <AnimatePresence mode="wait" initial={false}>
+              {mobilePanel === null ? (
+                <motion.div
+                  key="main"
+                  initial={{ opacity: 0, x: -24 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -24 }}
+                  transition={{ duration: 0.28, ease: MOBILE_PANEL_EASE }}
+                >
+                  <nav className="flex flex-col gap-1">
+                    {settings.mainNav.map((item) => {
+                      const hasMega = item.label === "Calculators" || item.label === "Services";
+                      return hasMega ? (
+                        <button
+                          key={item.href}
+                          type="button"
+                          onClick={() => setMobilePanel(item.label)}
+                          className="flex items-center justify-between rounded-xl px-4 py-3.5 text-left text-lg font-medium text-white/90 hover:bg-white/10"
+                        >
+                          {item.label}
+                          <ChevronRight className="h-5 w-5 text-white/45" />
+                        </button>
+                      ) : (
+                        <Link
+                          key={item.href}
+                          href={item.href}
+                          onClick={() => setMobileOpen(false)}
+                          className="rounded-xl px-4 py-3.5 text-lg font-medium text-white/90 hover:bg-white/10"
+                        >
+                          {item.label}
+                        </Link>
+                      );
+                    })}
+                  </nav>
+                  <GradientButton href={settings.navCtaHref} className="mt-4 w-full">
+                    {settings.navCtaLabel}
+                  </GradientButton>
+                </motion.div>
+              ) : (
+                <motion.div
+                  key="submenu"
+                  initial={{ opacity: 0, x: 24 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: 24 }}
+                  transition={{ duration: 0.28, ease: MOBILE_PANEL_EASE }}
+                >
+                  <button
+                    type="button"
+                    onClick={() => setMobilePanel(null)}
+                    className="mb-2 flex items-center gap-1.5 rounded-xl px-4 py-3 text-sm font-medium text-white/60 hover:bg-white/10 hover:text-white/90"
+                  >
+                    <ChevronLeft className="h-4 w-4" />
+                    Back
+                  </button>
+                  <p className="px-4 pb-1 text-xs font-semibold uppercase tracking-wide text-white/40">{mobilePanel}</p>
+                  <nav className="flex flex-col gap-1">
+                    {mobilePanel === "Calculators"
+                      ? calculatorCategories.map((cat) => (
+                          <Link
+                            key={cat.id}
+                            href={`/calculators?category=${cat.id}`}
+                            onClick={() => setMobileOpen(false)}
+                            className="rounded-xl px-4 py-3.5 text-lg font-medium text-white/90 hover:bg-white/10"
+                          >
+                            {cat.label}
+                          </Link>
+                        ))
+                      : services.slice(0, 8).map((s) => (
+                          <Link
+                            key={s.slug}
+                            href={`/services/${s.category}/${s.slug}`}
+                            onClick={() => setMobileOpen(false)}
+                            className="rounded-xl px-4 py-3.5 text-lg font-medium text-white/90 hover:bg-white/10"
+                          >
+                            {s.title}
+                          </Link>
+                        ))}
+                  </nav>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
         </div>
       )}
     </header>

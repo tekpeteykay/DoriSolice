@@ -36,7 +36,7 @@ export function AboutIntro({ content }: { content: AboutIntroContent }) {
             <InfinityMark
               glow
               direction="vertical"
-              className="absolute -left-24 -top-10 h-[200px] w-[460px] rotate-[-18deg] md:-left-28 md:-top-12 md:h-[280px] md:w-[640px] md:rotate-[-20deg]"
+              className="absolute -left-28 -top-12 h-[230px] w-[530px] rotate-[-18deg] md:-left-28 md:-top-12 md:h-[280px] md:w-[640px] md:rotate-[-20deg]"
             />
             <Image
               src="/logo-mark.png"

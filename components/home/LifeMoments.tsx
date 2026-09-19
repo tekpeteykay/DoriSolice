@@ -75,7 +75,7 @@ function MomentCard({ moment: m, tone }: { moment: MomentCardData; tone: (typeof
             toneClasses
           )}
         >
-          <h3 className="text-2xl font-medium leading-snug md:text-3xl">{m.title}</h3>
+          <h3 className="text-4xl font-medium leading-snug md:text-3xl">{m.title}</h3>
           <p className={cn("mt-3 text-sm leading-relaxed", subColor)}>{m.description}</p>
           {/* Same gradient + hover treatment as the Hero CTA button. */}
           <span className="mt-5 flex h-11 w-11 items-center justify-center self-end rounded-full bg-brand-gradient bg-[length:200%_auto] text-white shadow-glow transition-all duration-300 group-hover:bg-[position:100%_0]">
