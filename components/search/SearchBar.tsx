@@ -50,8 +50,11 @@ export function SearchBar({ variant = "hero", placeholder = "What do you need he
           onKeyDown={(e) => e.key === "Enter" && goToSearch(query)}
           placeholder={placeholder}
           className={cn(
-            "w-full bg-transparent outline-none",
-            variant === "nav" ? "text-sm" : "text-base",
+            // Always at least 16px: below that, mobile Safari/Chrome
+            // auto-zoom the whole page on focus to make the text legible —
+            // which is exactly the unwanted "zoom in" behavior here. 16px
+            // sits right at that threshold, so it stays put instead.
+            "w-full bg-transparent text-base outline-none",
             variant === "compact" ? "text-navy-900 placeholder:text-navy-400" : "text-white placeholder:text-white/50"
           )}
         />
