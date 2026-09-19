@@ -1,12 +1,17 @@
 // Hero carousel content. Swap the `image` path for your own photography at
 // any time — drop a same-name file into /public/hero-slides/ or update the
 // path here. Everything else (headline, subtext, CTA) is plain data.
+//
+// `cardMedia` is the optional image/GIF/video shown faintly behind the left
+// (navy) card — separate from `image`, the main right-hand banner media.
+// Leaving it unset falls back to DEFAULT_CARD_MEDIA (see components/home/Hero.tsx).
 export interface HeroSlide {
   title: string;
   subtitle: string;
   ctaLabel: string;
   ctaHref: string;
   image: string;
+  cardMedia?: string;
 }
 
 export const heroSlides: HeroSlide[] = [

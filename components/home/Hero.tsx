@@ -10,6 +10,10 @@ import { cn, isGifUrl, isVideoUrl } from "@/lib/utils";
 
 const AUTOPLAY_MS = 6000;
 
+// Shown behind the left (navy) card until a slide sets its own
+// "card_media_url" in the CMS — swap this file, or override it per slide.
+const DEFAULT_CARD_MEDIA = "/hero-slides/card-media-default.jpg";
+
 // Bottom-up fade of the brand gradient over the slide image — same three
 // colors as the CTA button and the frame behind the two cards, just used
 // as a vertical wash instead of a horizontal fill.
@@ -33,6 +37,37 @@ export function Hero({ slides: heroSlides }: { slides: HeroSlide[] }) {
           <div className="grid gap-2.5 md:grid-cols-[36fr_64fr] md:gap-3.5">
             {/* Left card: credit-card portrait proportions, content settled toward the bottom */}
             <div className="relative flex min-h-[460px] flex-col justify-end overflow-hidden rounded-[1.5rem] bg-[#00385A] p-8 pb-12 text-white md:min-h-[600px] md:rounded-[2rem] md:p-10 md:pb-14">
+              {/* Optional background media, faded well into the navy so it
+                  reads as texture rather than a picture — the navy tone
+                  stays dominant and the infinity mark/text on top are
+                  unaffected. Falls back to a shared default photo until a
+                  slide sets its own card_media_url in the CMS; each slide
+                  crossfades the same way the right-hand banner does. */}
+              {heroSlides.map((s, i) => {
+                const media = s.cardMedia || DEFAULT_CARD_MEDIA;
+                return (
+                  <motion.div
+                    key={`card-media-${i}`}
+                    animate={{ opacity: i === index ? 1 : 0 }}
+                    transition={{ duration: 1, ease: "easeInOut" }}
+                    className="absolute inset-0"
+                  >
+                    {isVideoUrl(media) ? (
+                      <video src={media} autoPlay muted loop playsInline className="h-full w-full object-cover opacity-20" />
+                    ) : (
+                      <Image
+                        src={media}
+                        alt=""
+                        fill
+                        unoptimized={isGifUrl(media)}
+                        className="object-cover opacity-20"
+                        sizes="(min-width: 768px) 36vw, 100vw"
+                      />
+                    )}
+                  </motion.div>
+                );
+              })}
+
               {/* Infinity mark oversized and tilted so it fills the card and
                   bleeds off its edges — the card's own overflow-hidden acts
                   as the clipping mask. Taken out of the flex flow (absolute)

@@ -209,10 +209,17 @@ export const resources: ResourceConfig[] = [
       { key: "cta_href", label: "Button link", type: "text", required: true, helpText: "e.g. /appointment" },
       {
         key: "image_url",
-        label: "Background media",
+        label: "Right banner media",
         type: "media",
         required: true,
         helpText: "Accepts a photo (jpg/png), a GIF, or a video (mp4/webm) — it displays correctly either way.",
+      },
+      {
+        key: "card_media_url",
+        label: "Left card background media (optional)",
+        type: "media",
+        helpText:
+          "Shows faintly behind the navy card on the left — the navy tone stays dominant, this just adds subtle texture. Accepts a photo, GIF, or video. Leave blank to use the default photo.",
       },
       { key: "sort_order", label: "Sort order", type: "number" },
     ],

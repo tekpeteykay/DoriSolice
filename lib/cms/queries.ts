@@ -195,7 +195,14 @@ export async function getHeroSlides(): Promise<HeroSlide[]> {
   if (supabase) {
     const { data, error } = await supabase.from("hero_slides").select("*").order("sort_order", { ascending: true });
     if (!error && data && data.length > 0) {
-      return data.map((row: any) => ({ title: row.title, subtitle: row.subtitle, ctaLabel: row.cta_label, ctaHref: row.cta_href, image: row.image_url }));
+      return data.map((row: any) => ({
+        title: row.title,
+        subtitle: row.subtitle,
+        ctaLabel: row.cta_label,
+        ctaHref: row.cta_href,
+        image: row.image_url,
+        cardMedia: row.card_media_url || undefined,
+      }));
     }
   }
   return staticHeroSlides;

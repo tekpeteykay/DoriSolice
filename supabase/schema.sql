@@ -154,6 +154,7 @@ create table hero_slides (
   cta_label text not null,
   cta_href text not null,
   image_url text not null,
+  card_media_url text, -- optional bg image/GIF/video behind the left (navy) card
   sort_order int not null default 0,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
