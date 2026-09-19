@@ -1,8 +1,8 @@
-import { faqs } from "@/data/faqs";
+import type { FAQ } from "@/types";
 import { GradientButton } from "@/components/ui/GradientButton";
 import { Reveal } from "@/components/ui/Reveal";
 
-export function RealQuestions() {
+export function RealQuestions({ faqs }: { faqs: FAQ[] }) {
   const picks = faqs.filter((f) => ["faq-5", "faq-3", "faq-7"].includes(f.id));
 
   return (

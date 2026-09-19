@@ -1,13 +1,15 @@
 import type { Metadata } from "next";
-import { updates } from "@/data/updates";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { Badge } from "@/components/ui/Badge";
 import { formatDate } from "@/lib/utils";
 import { Reveal } from "@/components/ui/Reveal";
+import { getUpdates } from "@/lib/cms/queries";
 
 export const metadata: Metadata = { title: "Updates" };
+export const revalidate = 60;
 
-export default function UpdatesPage() {
+export default async function UpdatesPage() {
+  const updates = await getUpdates();
   return (
     <div className="bg-slate-50 pb-24">
       <section className="relative overflow-hidden bg-brand-radial pb-16 pt-40 text-white">

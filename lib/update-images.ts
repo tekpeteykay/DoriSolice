@@ -1,9 +1,8 @@
-import { updates } from "@/data/updates";
-
-// One image per update, matched by position — SiteUpdate has no image field
-// of its own, so this stays a shared lookup rather than something duplicated
-// wherever an update needs a picture (home's "See What's New" card, the
-// blog page's article and sidebar).
+// One image per update, matched deterministically by slug — SiteUpdate can
+// optionally carry its own imageUrl from the CMS, and this is the fallback
+// used whenever that's unset. Hash-based (rather than array position) so it
+// stays stable regardless of how many updates exist or what order the
+// database returns them in.
 export const UPDATE_IMAGES = [
   "/hero-slides/slide-4-spouse-visa.png",
   "/hero-slides/slide-2-skilled-worker.jpg",
@@ -12,7 +11,10 @@ export const UPDATE_IMAGES = [
 ];
 
 export function getUpdateImage(slug: string): string {
-  const index = updates.findIndex((u) => u.slug === slug);
-  if (index < 0) return UPDATE_IMAGES[0];
-  return UPDATE_IMAGES[index % UPDATE_IMAGES.length];
+  if (!slug) return UPDATE_IMAGES[0];
+  let hash = 0;
+  for (let i = 0; i < slug.length; i++) {
+    hash = (hash * 31 + slug.charCodeAt(i)) >>> 0;
+  }
+  return UPDATE_IMAGES[hash % UPDATE_IMAGES.length];
 }

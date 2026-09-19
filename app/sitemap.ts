@@ -1,11 +1,11 @@
 import { MetadataRoute } from "next";
-import { guides } from "@/data/guides";
-import { services } from "@/data/services";
 import { calculators } from "@/lib/calculators/registry";
 import { siteConfig } from "@/lib/site-config";
+import { getGuides, getServices } from "@/lib/cms/queries";
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const base = siteConfig.url;
+  const [guides, services] = await Promise.all([getGuides(), getServices()]);
 
   const staticRoutes = [
     "",

@@ -1,13 +1,13 @@
 import Link from "next/link";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { GradientButton } from "@/components/ui/GradientButton";
-import { guides } from "@/data/guides";
-import { services } from "@/data/services";
 import { calculatorCatalogue } from "@/data/calculator-catalogue";
 import { ArrowRight } from "lucide-react";
 import { Reveal } from "@/components/ui/Reveal";
+import { getGuides, getServices } from "@/lib/cms/queries";
 
 export const metadata = { title: "Immigration" };
+export const revalidate = 60;
 
 const routes = [
   { title: "Spouse & Partner Visa", guide: "uk-spouse-visa-explained", calculator: "immigration/spouse-visa", service: "spouse-partner-visa" },
@@ -17,7 +17,9 @@ const routes = [
   { title: "British Citizenship", guide: "ilr-vs-citizenship", service: "british-citizenship" },
 ];
 
-export default function ImmigrationHubPage() {
+export default async function ImmigrationHubPage() {
+  const [guides, services] = await Promise.all([getGuides(), getServices()]);
+
   return (
     <div className="bg-slate-50 pb-24">
       <section className="relative overflow-hidden bg-brand-radial pb-20 pt-40 text-white">

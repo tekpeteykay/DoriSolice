@@ -1,7 +1,7 @@
-import { services } from "@/data/services";
 import { ServiceCard } from "@/components/services/ServiceCard";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { GradientButton } from "@/components/ui/GradientButton";
+import { getServices } from "@/lib/cms/queries";
 
 const groups: { id: "immigration" | "tax" | "benefits" | "general"; label: string }[] = [
   { id: "immigration", label: "Immigration" },
@@ -10,8 +10,10 @@ const groups: { id: "immigration" | "tax" | "benefits" | "general"; label: strin
 ];
 
 export const metadata = { title: "Services" };
+export const revalidate = 60;
 
-export default function ServicesPage() {
+export default async function ServicesPage() {
+  const services = await getServices();
   return (
     <div className="bg-slate-50 pb-24">
       <section className="relative overflow-hidden bg-brand-radial pb-16 pt-40 text-white">

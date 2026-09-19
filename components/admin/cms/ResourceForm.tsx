@@ -8,6 +8,16 @@ import { FieldInput } from "./FieldInput";
 import { createClient } from "@/lib/supabase/client";
 import { GradientButton } from "@/components/ui/GradientButton";
 import { slugify } from "@/lib/utils";
+import { getPublicPaths } from "@/lib/cms/revalidate-paths";
+
+async function revalidatePublicPaths(paths: string[]) {
+  try {
+    await fetch("/api/revalidate", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ paths }) });
+  } catch {
+    // Best-effort — the live site will still catch up on its own within
+    // the page's normal cache window even if this call fails.
+  }
+}
 
 interface ResourceFormProps {
   resource: ResourceConfig;
@@ -55,6 +65,8 @@ export function ResourceForm({ resource, initialValues, isNew }: ResourceFormPro
 
       const { error } = await query;
       if (error) throw new Error(error.message);
+
+      await revalidatePublicPaths(getPublicPaths(resource.key, payload));
 
       router.push(`/admin/content/${resource.key}`);
       router.refresh();

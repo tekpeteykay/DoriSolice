@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { AppointmentBookingDraft, AppointmentServiceArea } from "@/types";
-import { serviceAreas, appointmentTypes, getAvailableSlots } from "@/data/appointment-types";
+import { AppointmentBookingDraft, AppointmentServiceArea, AppointmentTypeDef } from "@/types";
+import { serviceAreas, getAvailableSlots } from "@/data/appointment-types";
 import { GradientButton } from "@/components/ui/GradientButton";
 import { CalculatorProgress } from "@/components/calculators/CalculatorProgress";
 import { cn, formatDate } from "@/lib/utils";
@@ -12,7 +12,7 @@ import Link from "next/link";
 
 const STEPS = ["Service", "Appointment type", "Date & time", "Your details", "Confirmation"];
 
-export function BookingWizard() {
+export function BookingWizard({ appointmentTypes }: { appointmentTypes: AppointmentTypeDef[] }) {
   const params = useSearchParams();
   const preselected = params.get("service") as AppointmentServiceArea | null;
 

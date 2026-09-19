@@ -7,7 +7,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { ArrowUpRight } from "lucide-react";
 import { Reveal } from "@/components/ui/Reveal";
 import { Badge } from "@/components/ui/Badge";
-import { updates } from "@/data/updates";
+import type { SiteUpdate } from "@/types";
 import { getUpdateImage } from "@/lib/update-images";
 import { scrollVariants } from "@/lib/motion-variants";
 import { formatDate } from "@/lib/utils";
@@ -15,7 +15,7 @@ import { cn } from "@/lib/utils";
 
 const CYCLE_MS = 5000;
 
-export function BlogClient() {
+export function BlogClient({ updates }: { updates: SiteUpdate[] }) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -34,8 +34,8 @@ export function BlogClient() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [requestedSlug]);
 
-  const active = useMemo(() => updates.find((u) => u.slug === activeSlug) ?? updates[0], [activeSlug]);
-  const others = useMemo(() => updates.filter((u) => u.slug !== active.slug), [active.slug]);
+  const active = useMemo(() => updates.find((u) => u.slug === activeSlug) ?? updates[0], [activeSlug, updates]);
+  const others = useMemo(() => updates.filter((u) => u.slug !== active.slug), [active.slug, updates]);
 
   // The sidebar's top card auto-cycles through every post that isn't the one
   // currently open — same "slot machine" scroll used on the home page.
@@ -70,7 +70,7 @@ export function BlogClient() {
           {/* Left: the currently open post, shown in full */}
           <Reveal key={active.slug} delay={0.05}>
             <div className="relative aspect-[16/9] w-full overflow-hidden rounded-xl">
-              <Image src={getUpdateImage(active.slug)} alt="" fill priority className="object-cover" />
+              <Image src={active.imageUrl ?? getUpdateImage(active.slug)} alt="" fill priority className="object-cover" />
             </div>
 
             <div className="mt-6 flex flex-wrap items-center gap-3">
@@ -114,7 +114,7 @@ export function BlogClient() {
                       transition={{ duration: 0.6, ease: [0.4, 0, 0.2, 1] }}
                       className="relative [grid-area:1/1]"
                     >
-                      <Image src={getUpdateImage(featured.slug)} alt="" fill className="object-cover" />
+                      <Image src={featured.imageUrl ?? getUpdateImage(featured.slug)} alt="" fill className="object-cover" />
                     </motion.div>
                   </AnimatePresence>
                 </div>

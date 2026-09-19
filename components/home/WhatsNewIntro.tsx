@@ -7,8 +7,8 @@ import { AnimatePresence, motion } from "framer-motion";
 import { ArrowUpRight, Calculator, ShieldCheck, BookOpenText, CalendarCheck2, ArrowRight } from "lucide-react";
 import { Reveal } from "@/components/ui/Reveal";
 import { cn } from "@/lib/utils";
-import { updates } from "@/data/updates";
-import { UPDATE_IMAGES } from "@/lib/update-images";
+import type { SiteUpdate } from "@/types";
+import { getUpdateImage } from "@/lib/update-images";
 import { scrollVariants } from "@/lib/motion-variants";
 
 const CYCLE_MS = 5000;
@@ -44,16 +44,16 @@ const actions = [
   },
 ] as const;
 
-export function WhatsNewIntro() {
+export function WhatsNewIntro({ updates }: { updates: SiteUpdate[] }) {
   const [index, setIndex] = useState(0);
 
   useEffect(() => {
     const id = setInterval(() => setIndex((i) => (i + 1) % updates.length), CYCLE_MS);
     return () => clearInterval(id);
-  }, []);
+  }, [updates.length]);
 
   const current = updates[index];
-  const currentImage = UPDATE_IMAGES[index % UPDATE_IMAGES.length];
+  const currentImage = current.imageUrl ?? getUpdateImage(current.slug);
 
   return (
     // Gradient fills edge-to-edge here — it's the section's own background,

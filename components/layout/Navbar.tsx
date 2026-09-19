@@ -9,9 +9,14 @@ import { mainNav } from "@/lib/site-config";
 import { GradientButton } from "@/components/ui/GradientButton";
 import { SearchBar } from "@/components/search/SearchBar";
 import { calculatorCategories } from "@/data/calculator-catalogue";
-import { services } from "@/data/services";
 
-export function Navbar() {
+interface NavService {
+  slug: string;
+  category: string;
+  title: string;
+}
+
+export function Navbar({ services }: { services: NavService[] }) {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [megaOpen, setMegaOpen] = useState<string | null>(null);

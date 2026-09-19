@@ -12,23 +12,39 @@ import { VideoTestimonials } from "@/components/home/VideoTestimonials";
 import { FeaturedServices } from "@/components/home/FeaturedServices";
 import { FAQPreview } from "@/components/home/FAQPreview";
 import { HomeContact } from "@/components/home/HomeContact";
+import { getHeroSlides, getUpdates, getGuides, getFaqs, getTestimonials, getVideoTestimonials, getServices } from "@/lib/cms/queries";
 
-export default function HomePage() {
+// Content here comes from the CMS — re-check it periodically, and the admin
+// panel also asks for an immediate refresh right after a save (see
+// app/api/revalidate/route.ts), so this window is really just a fallback.
+export const revalidate = 60;
+
+export default async function HomePage() {
+  const [heroSlides, updates, guides, faqs, testimonials, videoTestimonials, services] = await Promise.all([
+    getHeroSlides(),
+    getUpdates(),
+    getGuides(),
+    getFaqs(),
+    getTestimonials(),
+    getVideoTestimonials(),
+    getServices(),
+  ]);
+
   return (
     <>
-      <Hero />
-      <WhatsNewIntro />
+      <Hero slides={heroSlides} />
+      <WhatsNewIntro updates={updates} />
       <LifeMoments />
       <AboutIntro />
       <PopularCalculators />
       <ImmigrationTaxSplit />
-      <RealQuestions />
-      <GuidesPreview />
+      <RealQuestions faqs={faqs} />
+      <GuidesPreview guides={guides} />
       <WhyDoriSolic />
-      <Testimonials />
-      <VideoTestimonials />
-      <FeaturedServices />
-      <FAQPreview />
+      <Testimonials testimonials={testimonials} />
+      <VideoTestimonials testimonials={videoTestimonials} />
+      <FeaturedServices services={services} />
+      <FAQPreview faqs={faqs} />
       <HomeContact />
     </>
   );

@@ -2,16 +2,15 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { faqs } from "@/data/faqs";
+import type { FAQ } from "@/types";
 import { cn } from "@/lib/utils";
 import { Reveal } from "@/components/ui/Reveal";
 import { GradientButton } from "@/components/ui/GradientButton";
 import { JsonLd } from "@/components/seo/JsonLd";
 
-// The full list lives here now — this is the only FAQ page the site has.
-const items = faqs;
-
-export function FAQPreview() {
+export function FAQPreview({ faqs }: { faqs: FAQ[] }) {
+  // The full list lives here — this is the only FAQ page the site has.
+  const items = faqs;
   const [openId, setOpenId] = useState<string | null>(items[0]?.id ?? null);
 
   return (

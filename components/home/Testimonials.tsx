@@ -4,12 +4,7 @@ import Image from "next/image";
 import { useEffect, useRef } from "react";
 import { ChevronLeft, ChevronRight, Star } from "lucide-react";
 import { Reveal } from "@/components/ui/Reveal";
-import { testimonials, type Testimonial } from "@/data/testimonials";
-
-// Cards are duplicated once so the track is exactly 200% wide — the scroll
-// position is looped (mod half the track width) so it always lands
-// somewhere inside a full, seamless set of cards.
-const loop = [...testimonials, ...testimonials];
+import { type Testimonial } from "@/data/testimonials";
 
 // Pixels per second for the continuous auto-scroll, and how far one arrow
 // click nudges the row (roughly one card + its gap).
@@ -17,7 +12,11 @@ const AUTO_SCROLL_SPEED = 40;
 const NUDGE_DISTANCE = 356;
 const RESUME_DELAY_MS = 2500;
 
-export function Testimonials() {
+export function Testimonials({ testimonials }: { testimonials: Testimonial[] }) {
+  // Cards are duplicated once so the track is exactly 200% wide — the
+  // scroll position is looped (mod half the track width) so it always
+  // lands somewhere inside a full, seamless set of cards.
+  const loop = [...testimonials, ...testimonials];
   const trackRef = useRef<HTMLDivElement>(null);
   const positionRef = useRef(0);
   const pausedRef = useRef(false);

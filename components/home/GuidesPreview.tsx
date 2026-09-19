@@ -1,9 +1,9 @@
-import { guides } from "@/data/guides";
+import type { Guide } from "@/types";
 import { GuideCard } from "@/components/guides/GuideCard";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { GradientButton } from "@/components/ui/GradientButton";
 
-export function GuidesPreview() {
+export function GuidesPreview({ guides }: { guides: Guide[] }) {
   const featured = guides.slice(0, 3);
   return (
     <section className="bg-white py-24">

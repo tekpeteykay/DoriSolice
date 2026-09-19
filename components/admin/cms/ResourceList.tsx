@@ -5,6 +5,15 @@ import Link from "next/link";
 import { Plus, Pencil, Trash2, Loader2, AlertCircle } from "lucide-react";
 import { ResourceConfig } from "@/lib/cms/types";
 import { createClient } from "@/lib/supabase/client";
+import { getPublicPaths } from "@/lib/cms/revalidate-paths";
+
+async function revalidatePublicPaths(paths: string[]) {
+  try {
+    await fetch("/api/revalidate", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ paths }) });
+  } catch {
+    // Best-effort.
+  }
+}
 
 interface ResourceListProps {
   resource: ResourceConfig;
@@ -33,6 +42,7 @@ export function ResourceList({ resource }: ResourceListProps) {
 
   async function handleDelete(id: string) {
     if (!window.confirm(`Delete this ${resource.singularLabel.toLowerCase()}? This can't be undone.`)) return;
+    const row = rows?.find((r) => r[resource.primaryKey] === id) ?? null;
     setDeletingId(id);
     const supabase = createClient();
     const { error } = await supabase.from(resource.table).delete().eq(resource.primaryKey, id);
@@ -42,6 +52,7 @@ export function ResourceList({ resource }: ResourceListProps) {
       return;
     }
     setRows((prev) => prev?.filter((r) => r[resource.primaryKey] !== id) ?? null);
+    await revalidatePublicPaths(getPublicPaths(resource.key, row));
   }
 
   return (

@@ -11,6 +11,9 @@ import { Footer } from "@/components/layout/Footer";
 import { CookieConsent } from "@/components/layout/CookieConsent";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { siteConfig } from "@/lib/site-config";
+import { getServices } from "@/lib/cms/queries";
+
+export const revalidate = 60;
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.url),
@@ -35,7 +38,9 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const services = await getServices();
+
   return (
     <html lang="en">
       <body className="flex min-h-screen flex-col font-sans">
@@ -49,7 +54,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             areaServed: "GB",
           }}
         />
-        <Navbar />
+        <Navbar services={services} />
         <main className="flex-1">{children}</main>
         <Footer />
         <CookieConsent />

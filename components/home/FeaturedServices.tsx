@@ -1,9 +1,9 @@
-import { services } from "@/data/services";
+import type { ServiceItem } from "@/types";
 import { ServiceCard } from "@/components/services/ServiceCard";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { GradientButton } from "@/components/ui/GradientButton";
 
-export function FeaturedServices() {
+export function FeaturedServices({ services }: { services: ServiceItem[] }) {
   const featured = services.slice(0, 3);
   return (
     <section className="bg-white py-24">

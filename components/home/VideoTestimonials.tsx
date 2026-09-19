@@ -4,13 +4,7 @@ import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight, Play, X } from "lucide-react";
 import { Reveal } from "@/components/ui/Reveal";
-import { videoTestimonials, type VideoTestimonial } from "@/data/video-testimonials";
-
-// Cards are duplicated once so the track is exactly 200% wide — the scroll
-// position is looped (mod half the track width) so it always lands
-// somewhere inside a full, seamless set of cards. Same approach as the
-// text-testimonial carousel above this section.
-const loop = [...videoTestimonials, ...videoTestimonials];
+import { type VideoTestimonial } from "@/data/video-testimonials";
 
 const AUTO_SCROLL_SPEED = 32;
 const NUDGE_DISTANCE = 324;
@@ -25,7 +19,12 @@ function initials(name: string) {
     .toUpperCase();
 }
 
-export function VideoTestimonials() {
+export function VideoTestimonials({ testimonials: videoTestimonials }: { testimonials: VideoTestimonial[] }) {
+  // Cards are duplicated once so the track is exactly 200% wide — the
+  // scroll position is looped (mod half the track width) so it always
+  // lands somewhere inside a full, seamless set of cards. Same approach as
+  // the text-testimonial carousel above this section.
+  const loop = [...videoTestimonials, ...videoTestimonials];
   const trackRef = useRef<HTMLDivElement>(null);
   const positionRef = useRef(0);
   const pausedRef = useRef(false);

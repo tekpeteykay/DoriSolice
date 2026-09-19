@@ -1,30 +1,31 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import type { Metadata } from "next";
-import { services, getServiceBySlug } from "@/data/services";
 import { calculatorCatalogue } from "@/data/calculator-catalogue";
-import { guides } from "@/data/guides";
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
 import { Badge } from "@/components/ui/Badge";
 import { GradientButton } from "@/components/ui/GradientButton";
 import { FAQAccordion } from "@/components/ui/FAQAccordion";
 import { CheckCircle2 } from "lucide-react";
 import { Reveal } from "@/components/ui/Reveal";
+import { getServiceBySlug, getGuides } from "@/lib/cms/queries";
 
-export function generateStaticParams() {
-  return services.map((s) => ({ category: s.category, slug: s.slug }));
-}
+// No generateStaticParams here on purpose — services are CMS content now,
+// so a slug added after the last deploy still needs to resolve. Rendered
+// on demand and cached per `revalidate` instead of at build time.
+export const revalidate = 60;
 
-export function generateMetadata({ params }: { params: { slug: string } }): Metadata {
-  const service = getServiceBySlug(params.slug);
+export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
+  const service = await getServiceBySlug(params.slug);
   if (!service) return {};
   return { title: service.title, description: service.shortDescription, alternates: { canonical: `/services/${service.category}/${service.slug}` } };
 }
 
-export default function ServiceDetailPage({ params }: { params: { category: string; slug: string } }) {
-  const service = getServiceBySlug(params.slug);
+export default async function ServiceDetailPage({ params }: { params: { category: string; slug: string } }) {
+  const service = await getServiceBySlug(params.slug);
   if (!service) notFound();
 
+  const guides = await getGuides();
   const relatedCalculators = calculatorCatalogue.filter((c) => service.relatedCalculators?.includes(c.builtId ?? "____"));
   const relatedGuides = guides.filter((g) => service.relatedGuides?.includes(g.slug));
   const faqItems = service.typicalQuestions.map((q, i) => ({ id: `${service.slug}-${i}`, category: "general" as const, question: q.question, answer: q.answer }));

@@ -5,7 +5,7 @@ import Image from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
 import { GradientButton } from "@/components/ui/GradientButton";
 import { InfinityMark } from "@/components/ui/InfinityMark";
-import { heroSlides } from "@/data/hero-slides";
+import type { HeroSlide } from "@/data/hero-slides";
 import { cn } from "@/lib/utils";
 
 const AUTOPLAY_MS = 6000;
@@ -16,13 +16,13 @@ const AUTOPLAY_MS = 6000;
 const IMAGE_OVERLAY =
   "linear-gradient(0deg, rgba(186,10,12,0.82) 0%, rgba(156,127,168,0.55) 32%, rgba(62,116,154,0.22) 62%, rgba(62,116,154,0) 85%)";
 
-export function Hero() {
+export function Hero({ slides: heroSlides }: { slides: HeroSlide[] }) {
   const [index, setIndex] = useState(0);
 
   useEffect(() => {
     const id = setInterval(() => setIndex((i) => (i + 1) % heroSlides.length), AUTOPLAY_MS);
     return () => clearInterval(id);
-  }, []);
+  }, [heroSlides.length]);
 
   const slide = heroSlides[index];
 

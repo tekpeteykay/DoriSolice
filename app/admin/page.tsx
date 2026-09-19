@@ -1,9 +1,10 @@
 import Link from "next/link";
 import { mockAppointments, mockEnquiries } from "@/data/mock-admin-data";
-import { guides } from "@/data/guides";
 import { calculators } from "@/lib/calculators/registry";
-import { updates } from "@/data/updates";
 import { AlertTriangle, CalendarCheck2, Inbox, TrendingUp } from "lucide-react";
+import { getGuides, getUpdates } from "@/lib/cms/queries";
+
+export const revalidate = 60;
 
 function StatCard({ label, value, icon: Icon }: { label: string; value: string | number; icon: any }) {
   return (
@@ -17,7 +18,8 @@ function StatCard({ label, value, icon: Icon }: { label: string; value: string |
   );
 }
 
-export default function AdminOverviewPage() {
+export default async function AdminOverviewPage() {
+  const [guides, updates] = await Promise.all([getGuides(), getUpdates()]);
   const needsReview = guides.filter((g) => g.needsReview);
   const popularCalculators = calculators.filter((c) => c.popular);
 

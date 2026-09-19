@@ -2,10 +2,13 @@ import { Suspense } from "react";
 import { BookingWizard } from "@/components/booking/BookingWizard";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { Reveal } from "@/components/ui/Reveal";
+import { getAppointmentTypes } from "@/lib/cms/queries";
 
 export const metadata = { title: "Book an Appointment" };
+export const revalidate = 60;
 
-export default function AppointmentPage() {
+export default async function AppointmentPage() {
+  const appointmentTypes = await getAppointmentTypes();
   return (
     <div className="bg-slate-50 pb-24">
       <section className="relative overflow-hidden bg-brand-radial pb-16 pt-40 text-white">
@@ -22,7 +25,7 @@ export default function AppointmentPage() {
       <div className="container max-w-3xl">
         <Reveal className="-mt-8 rounded-3xl bg-white p-6 shadow-card md:p-8">
           <Suspense>
-            <BookingWizard />
+            <BookingWizard appointmentTypes={appointmentTypes} />
           </Suspense>
         </Reveal>
       </div>

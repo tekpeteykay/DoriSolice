@@ -1,9 +1,7 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import type { Metadata } from "next";
-import { guides, getGuideBySlug } from "@/data/guides";
 import { calculatorCatalogue } from "@/data/calculator-catalogue";
-import { services } from "@/data/services";
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
 import { Badge } from "@/components/ui/Badge";
 import { Disclaimer } from "@/components/ui/Disclaimer";
@@ -14,13 +12,15 @@ import { AlertTriangle, Info } from "lucide-react";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { siteConfig } from "@/lib/site-config";
 import { Reveal } from "@/components/ui/Reveal";
+import { getGuideBySlug, getServices } from "@/lib/cms/queries";
 
-export function generateStaticParams() {
-  return guides.map((g) => ({ category: g.category, slug: g.slug }));
-}
+// No generateStaticParams here on purpose — guides are CMS content now, so
+// a slug added after the last deploy still needs to resolve. Rendered on
+// demand and cached per `revalidate` instead of at build time.
+export const revalidate = 60;
 
-export function generateMetadata({ params }: { params: { slug: string } }): Metadata {
-  const guide = getGuideBySlug(params.slug);
+export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
+  const guide = await getGuideBySlug(params.slug);
   if (!guide) return {};
   return {
     title: guide.title,
@@ -29,10 +29,11 @@ export function generateMetadata({ params }: { params: { slug: string } }): Meta
   };
 }
 
-export default function GuidePage({ params }: { params: { category: string; slug: string } }) {
-  const guide = getGuideBySlug(params.slug);
+export default async function GuidePage({ params }: { params: { category: string; slug: string } }) {
+  const guide = await getGuideBySlug(params.slug);
   if (!guide) notFound();
 
+  const services = await getServices();
   const relatedCalculators = calculatorCatalogue.filter((c) => guide.relatedCalculators?.includes(c.builtId ?? "____"));
   const relatedServices = services.filter((s) => guide.relatedServices?.includes(s.slug));
 

@@ -298,6 +298,8 @@ export interface SiteUpdate {
   lastReviewed: string;
   appliesFrom: string;
   body: string;
+  /** Optional CMS-uploaded image — falls back to lib/update-images.ts when unset. */
+  imageUrl?: string;
 }
 
 export interface DocumentChecklistItem {

@@ -3,13 +3,15 @@ import Link from "next/link";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { GradientButton } from "@/components/ui/GradientButton";
 import { calculatorCatalogue } from "@/data/calculator-catalogue";
-import { guides } from "@/data/guides";
 import { CalculatorCard } from "@/components/calculators/CalculatorCard";
 import { GuideCard } from "@/components/guides/GuideCard";
+import { getGuides } from "@/lib/cms/queries";
 
 export const metadata: Metadata = { title: "Tax & Benefits" };
+export const revalidate = 60;
 
-export default function TaxAndBenefitsPage() {
+export default async function TaxAndBenefitsPage() {
+  const guides = await getGuides();
   const taxCalcs = calculatorCatalogue.filter((c) => c.category === "tax" || c.category === "salary").slice(0, 6);
   const benefitGuides = guides.filter((g) => g.category === "benefits" || g.category === "tax").slice(0, 3);
 
