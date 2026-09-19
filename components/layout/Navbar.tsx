@@ -139,24 +139,24 @@ export function Navbar({ services, settings }: { services: NavService[]; setting
                           key={item.href}
                           type="button"
                           onClick={() => setMobilePanel(item.label)}
-                          className="flex items-center justify-between rounded-xl px-4 py-3.5 text-left text-lg font-medium text-white/90 hover:bg-white/10"
+                          className="flex items-center justify-between rounded-xl px-4 py-3.5 text-left text-[54px] leading-tight font-medium text-white/90 hover:bg-white/10"
                         >
                           {item.label}
-                          <ChevronRight className="h-5 w-5 text-white/45" />
+                          <ChevronRight className="h-8 w-8 shrink-0 text-white/45" />
                         </button>
                       ) : (
                         <Link
                           key={item.href}
                           href={item.href}
                           onClick={() => setMobileOpen(false)}
-                          className="rounded-xl px-4 py-3.5 text-lg font-medium text-white/90 hover:bg-white/10"
+                          className="rounded-xl px-4 py-3.5 text-[54px] leading-tight font-medium text-white/90 hover:bg-white/10"
                         >
                           {item.label}
                         </Link>
                       );
                     })}
                   </nav>
-                  <GradientButton href={settings.navCtaHref} className="mt-4 w-full">
+                  <GradientButton href={settings.navCtaHref} className="mt-4 py-[14.5px]">
                     {settings.navCtaLabel}
                   </GradientButton>
                 </motion.div>
