@@ -22,18 +22,31 @@ function LoginForm() {
     setLoading(true);
     setError(null);
 
-    const supabase = createClient();
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    try {
+      const supabase = createClient();
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
 
-    if (error) {
-      setError(error.message);
+      if (error) {
+        setError(error.message);
+        setLoading(false);
+        return;
+      }
+
+      // Full navigation (not router.push) so the middleware re-runs against
+      // the fresh session cookie before the admin area renders.
+      window.location.href = next;
+    } catch (err) {
+      // A thrown error here (rather than a returned `error`) almost always
+      // means the Supabase URL/key the browser was built with are missing —
+      // most commonly because they're set in .env.local (which never gets
+      // deployed) but not in the hosting provider's environment variables.
+      setError(
+        err instanceof Error
+          ? `Couldn't reach Supabase (${err.message}). Check that your Supabase environment variables are set in your host's project settings, not just in .env.local, and redeploy.`
+          : "Something went wrong signing in. Please try again."
+      );
       setLoading(false);
-      return;
     }
-
-    // Full navigation (not router.push) so the middleware re-runs against
-    // the fresh session cookie before the admin area renders.
-    window.location.href = next;
   }
 
   return (

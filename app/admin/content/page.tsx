@@ -1,43 +1,42 @@
-import { guides } from "@/data/guides";
-import { services } from "@/data/services";
+import Link from "next/link";
+import { ArrowRight, DownloadCloud } from "lucide-react";
 import { calculators } from "@/lib/calculators/registry";
 import { taxYear2026_27 } from "@/data/tax-years/2026-27";
 import { formatDate } from "@/lib/utils";
+import { resources } from "@/lib/cms/resources";
 
 export default function AdminContentPage() {
   return (
     <div>
-      <h1 className="text-2xl font-bold text-navy-900">Content &amp; Rules</h1>
-      <p className="mt-1 text-navy-500">
-        Everything below is driven by data files, not hard-coded UI — in production, this becomes the admin surface for a CMS/database (e.g. Supabase tables) so non-developers can update
-        content without a code change.
-      </p>
-
-      <div className="mt-8 grid gap-6 lg:grid-cols-2">
-        <div className="rounded-2xl border border-navy-100 bg-white p-6">
-          <h2 className="font-semibold text-navy-900">Guides ({guides.length})</h2>
-          <ul className="mt-4 max-h-72 space-y-2 overflow-y-auto text-sm">
-            {guides.map((g) => (
-              <li key={g.slug} className="flex items-center justify-between border-b border-navy-50 py-2 last:border-0">
-                <span className="text-navy-700">{g.title}</span>
-                <span className="text-xs text-navy-400">Reviewed {formatDate(g.lastReviewed)}</span>
-              </li>
-            ))}
-          </ul>
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-navy-900">Content &amp; Rules</h1>
+          <p className="mt-1 max-w-2xl text-navy-500">
+            Everything in the section below is live — changes here update the site immediately, no code or developer needed. Calculators and tax-year/immigration/benefit rules stay
+            code-managed for now, shown read-only underneath.
+          </p>
         </div>
+        <Link href="/admin/content/import" className="flex shrink-0 items-center gap-1.5 rounded-full border border-navy-100 bg-white px-4 py-2.5 text-sm font-medium text-navy-600 hover:bg-navy-50">
+          <DownloadCloud className="h-4 w-4" /> Import existing content
+        </Link>
+      </div>
 
-        <div className="rounded-2xl border border-navy-100 bg-white p-6">
-          <h2 className="font-semibold text-navy-900">Services ({services.length})</h2>
-          <ul className="mt-4 max-h-72 space-y-2 overflow-y-auto text-sm">
-            {services.map((s) => (
-              <li key={s.slug} className="flex items-center justify-between border-b border-navy-50 py-2 last:border-0">
-                <span className="text-navy-700">{s.title}</span>
-                <span className="text-xs capitalize text-navy-400">{s.category}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
+      <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {resources.map((r) => (
+          <Link key={r.key} href={`/admin/content/${r.key}`} className="group flex flex-col justify-between rounded-2xl border border-navy-100 bg-white p-5 transition-colors hover:border-navy-300">
+            <div>
+              <h2 className="font-semibold text-navy-900">{r.label}</h2>
+              <p className="mt-1 text-sm text-navy-500">{r.description}</p>
+            </div>
+            <span className="mt-4 flex items-center gap-1 text-sm font-medium text-navy-600">
+              Manage <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
+            </span>
+          </Link>
+        ))}
+      </div>
 
+      <h2 className="mt-10 text-lg font-semibold text-navy-900">Code-managed (read-only)</h2>
+      <div className="mt-4 grid gap-6 lg:grid-cols-2">
         <div className="rounded-2xl border border-navy-100 bg-white p-6">
           <h2 className="font-semibold text-navy-900">Calculators ({calculators.length})</h2>
           <ul className="mt-4 max-h-72 space-y-2 overflow-y-auto text-sm">
