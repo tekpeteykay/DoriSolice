@@ -63,7 +63,7 @@ export function SearchBar({ variant = "hero", placeholder = "What do you need he
       </div>
 
       {focused && (
-        <div className="absolute left-0 right-0 top-full z-30 mt-2 overflow-hidden rounded-2xl border border-navy-100 bg-white shadow-xl">
+        <div className="absolute left-1/2 top-full z-30 mt-2 w-max min-w-full max-w-[min(92vw,420px)] -translate-x-1/2 overflow-hidden rounded-2xl border border-navy-100 bg-white shadow-xl">
           {results.length > 0 ? (
             <ul className="max-h-80 overflow-y-auto py-2">
               {results.map((r) => (

@@ -49,11 +49,15 @@ export function Navbar({ services, settings }: { services: NavService[]; setting
             <Image src="/logo-mark.png" alt={settings.businessName} width={216} height={152} priority className="h-12 w-auto md:h-14" />
           </Link>
 
-          {/* Mobile-only search, centered in the bar but kept toward the
-              hamburger side so the two feel paired. Hidden at lg+, where the
-              full nav + the xl search box take over. */}
-          <div className="absolute left-1/2 top-1/2 w-32 -translate-x-[calc(50%-12px)] -translate-y-1/2 sm:w-44 lg:hidden">
-            <SearchBar variant="nav" placeholder={settings.searchPlaceholder} />
+          {/* Mobile-only search: fills whatever room is actually free between
+              the logo and the hamburger/CTA cluster, rather than a fixed
+              guessed width, so it can grow enough to show the full
+              placeholder while still sitting right next to the hamburger.
+              Hidden at lg+, where the full nav + the xl search box take over. */}
+          <div className="flex min-w-0 flex-1 justify-center px-3 lg:hidden">
+            <div className="w-full min-w-0 max-w-xs">
+              <SearchBar variant="nav" placeholder={settings.searchPlaceholder} />
+            </div>
           </div>
 
           <nav className="hidden items-center gap-1 lg:flex" onMouseLeave={() => setMegaOpen(null)}>
