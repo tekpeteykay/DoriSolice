@@ -37,80 +37,88 @@ export function Navbar({ services, settings }: { services: NavService[]; setting
   }, []);
 
   return (
-    <header
-      className={cn(
-        "fixed inset-x-0 top-0 z-50 transition-all duration-300",
-        scrolled || mobileOpen ? "bg-navy-900/90 backdrop-blur-xl shadow-card-dark" : "bg-transparent"
-      )}
-    >
-      <div className="container flex h-20 items-center justify-between">
-        <Link href="/" className="flex items-center">
-          <Image src="/logo-mark.png" alt={settings.businessName} width={216} height={152} priority className="h-12 w-auto md:h-14" />
-        </Link>
+    <>
+      <header
+        className={cn(
+          "fixed inset-x-0 top-0 z-50 transition-all duration-300",
+          scrolled || mobileOpen ? "bg-navy-900/90 backdrop-blur-xl shadow-card-dark" : "bg-transparent"
+        )}
+      >
+        <div className="container flex h-20 items-center justify-between">
+          <Link href="/" className="flex items-center">
+            <Image src="/logo-mark.png" alt={settings.businessName} width={216} height={152} priority className="h-12 w-auto md:h-14" />
+          </Link>
 
-        <nav className="hidden items-center gap-1 lg:flex" onMouseLeave={() => setMegaOpen(null)}>
-          {settings.mainNav.map((item) => {
-            const hasMega = item.label === "Calculators" || item.label === "Services";
-            return (
-              <div key={item.href} className="relative" onMouseEnter={() => hasMega && setMegaOpen(item.label)}>
-                <Link
-                  href={item.href}
-                  className="flex items-center gap-1 rounded-full px-4 py-2 text-sm font-medium text-white/85 transition-colors hover:bg-white/10 hover:text-white"
-                >
-                  {item.label}
-                  {hasMega && <ChevronDown className="h-3.5 w-3.5" />}
-                </Link>
+          <nav className="hidden items-center gap-1 lg:flex" onMouseLeave={() => setMegaOpen(null)}>
+            {settings.mainNav.map((item) => {
+              const hasMega = item.label === "Calculators" || item.label === "Services";
+              return (
+                <div key={item.href} className="relative" onMouseEnter={() => hasMega && setMegaOpen(item.label)}>
+                  <Link
+                    href={item.href}
+                    className="flex items-center gap-1 rounded-full px-4 py-2 text-sm font-medium text-white/85 transition-colors hover:bg-white/10 hover:text-white"
+                  >
+                    {item.label}
+                    {hasMega && <ChevronDown className="h-3.5 w-3.5" />}
+                  </Link>
 
-                {hasMega && megaOpen === item.label && (
-                  <div className="absolute left-1/2 top-full w-[560px] -translate-x-1/2 pt-3">
-                    <div className="grid grid-cols-2 gap-1 rounded-2xl border border-white/10 bg-navy-900/95 p-4 shadow-card-dark backdrop-blur-xl">
-                      {item.label === "Calculators"
-                        ? calculatorCategories.map((cat) => (
-                            <Link
-                              key={cat.id}
-                              href={`/calculators?category=${cat.id}`}
-                              className="rounded-xl px-4 py-3 text-sm font-medium text-white/80 hover:bg-white/10 hover:text-white"
-                            >
-                              {cat.label}
-                            </Link>
-                          ))
-                        : services.slice(0, 8).map((s) => (
-                            <Link
-                              key={s.slug}
-                              href={`/services/${s.category}/${s.slug}`}
-                              className="rounded-xl px-4 py-3 text-sm font-medium text-white/80 hover:bg-white/10 hover:text-white"
-                            >
-                              {s.title}
-                            </Link>
-                          ))}
+                  {hasMega && megaOpen === item.label && (
+                    <div className="absolute left-1/2 top-full w-[560px] -translate-x-1/2 pt-3">
+                      <div className="grid grid-cols-2 gap-1 rounded-2xl border border-white/10 bg-navy-900/95 p-4 shadow-card-dark backdrop-blur-xl">
+                        {item.label === "Calculators"
+                          ? calculatorCategories.map((cat) => (
+                              <Link
+                                key={cat.id}
+                                href={`/calculators?category=${cat.id}`}
+                                className="rounded-xl px-4 py-3 text-sm font-medium text-white/80 hover:bg-white/10 hover:text-white"
+                              >
+                                {cat.label}
+                              </Link>
+                            ))
+                          : services.slice(0, 8).map((s) => (
+                              <Link
+                                key={s.slug}
+                                href={`/services/${s.category}/${s.slug}`}
+                                className="rounded-xl px-4 py-3 text-sm font-medium text-white/80 hover:bg-white/10 hover:text-white"
+                              >
+                                {s.title}
+                              </Link>
+                            ))}
+                      </div>
                     </div>
-                  </div>
-                )}
-              </div>
-            );
-          })}
-        </nav>
+                  )}
+                </div>
+              );
+            })}
+          </nav>
 
-        <div className="flex items-center gap-3">
-          <div className="hidden w-56 xl:block">
-            <SearchBar variant="nav" placeholder={settings.searchPlaceholder} />
+          <div className="flex items-center gap-3">
+            <div className="hidden w-56 xl:block">
+              <SearchBar variant="nav" placeholder={settings.searchPlaceholder} />
+            </div>
+            <GradientButton href={settings.navCtaHref} size="sm" className="hidden !px-3.5 sm:inline-flex">
+              {settings.navCtaLabel}
+            </GradientButton>
+            <button
+              aria-label="Toggle menu"
+              className="rounded-full p-2 text-white lg:hidden"
+              onClick={() => {
+                setMobileOpen((v) => !v);
+                setMobilePanel(null);
+              }}
+            >
+              {mobileOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            </button>
           </div>
-          <GradientButton href={settings.navCtaHref} size="sm" className="hidden !px-3.5 sm:inline-flex">
-            {settings.navCtaLabel}
-          </GradientButton>
-          <button
-            aria-label="Toggle menu"
-            className="rounded-full p-2 text-white lg:hidden"
-            onClick={() => {
-              setMobileOpen((v) => !v);
-              setMobilePanel(null);
-            }}
-          >
-            {mobileOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-          </button>
         </div>
-      </div>
+      </header>
 
+      {/* Rendered outside <header> deliberately: the header gets a
+          backdrop-blur when mobileOpen is true, and a backdrop-filter on an
+          ancestor creates a new containing block for position:fixed
+          descendants — which collapsed this panel to zero height when it
+          lived inside the header. As a sibling, it's fixed to the viewport
+          like it should be. */}
       {mobileOpen && (
         <div className="fixed inset-x-0 top-20 bottom-0 z-40 overflow-hidden border-t border-white/10 bg-navy-900/55 shadow-card-dark backdrop-blur-2xl lg:hidden">
           <div className="h-full overflow-y-auto px-6 pb-8 pt-4">
@@ -198,6 +206,6 @@ export function Navbar({ services, settings }: { services: NavService[]; setting
           </div>
         </div>
       )}
-    </header>
+    </>
   );
 }
