@@ -1,13 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { AppointmentBookingDraft, AppointmentServiceArea, AppointmentTypeDef } from "@/types";
-import { serviceAreas, getAvailableSlots } from "@/data/appointment-types";
+import { serviceAreas, DEFAULT_TIME_SLOTS, isBookableWeekday } from "@/data/appointment-types";
+import { AppointmentCalendar } from "@/components/booking/AppointmentCalendar";
 import { GradientButton } from "@/components/ui/GradientButton";
 import { CalculatorProgress } from "@/components/calculators/CalculatorProgress";
+import { createClient } from "@/lib/supabase/client";
 import { cn, formatDate } from "@/lib/utils";
-import { ArrowLeft, CalendarCheck2, Mail, Phone } from "lucide-react";
+import { AlertCircle, ArrowLeft, CalendarCheck2, Loader2, Mail, Phone } from "lucide-react";
 import Link from "next/link";
 
 const STEPS = ["Service", "Appointment type", "Date & time", "Your details", "Confirmation"];
@@ -23,10 +25,51 @@ export function BookingWizard({ appointmentTypes }: { appointmentTypes: Appointm
   const [submitted, setSubmitted] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const slots = getAvailableSlots();
+  // Date & time step: the calendar picks a day first, then this fetches
+  // which of that day's standard times are already booked by someone else
+  // (via a Postgres function that only ever returns bare times — no other
+  // customer's details are exposed) so they can't be picked twice.
+  const [selectedDate, setSelectedDate] = useState<string | undefined>(draft.slot?.date);
+  const [bookedTimes, setBookedTimes] = useState<string[]>([]);
+  const [loadingTimes, setLoadingTimes] = useState(false);
+  const [availabilityError, setAvailabilityError] = useState<string | null>(null);
+
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+
+  async function loadBookedTimes(date: string, signal?: { cancelled: boolean }) {
+    setLoadingTimes(true);
+    setAvailabilityError(null);
+    try {
+      const supabase = createClient();
+      const { data, error } = await supabase.rpc("get_booked_slot_times", { p_date: date });
+      if (signal?.cancelled) return;
+      if (error) throw error;
+      setBookedTimes(((data as { slot_time: string }[] | null) ?? []).map((row) => row.slot_time));
+    } catch {
+      if (!signal?.cancelled) setAvailabilityError("Couldn't check availability for that day — please try again.");
+    } finally {
+      if (!signal?.cancelled) setLoadingTimes(false);
+    }
+  }
+
+  useEffect(() => {
+    if (!selectedDate) return;
+    const signal = { cancelled: false };
+    loadBookedTimes(selectedDate, signal);
+    return () => {
+      signal.cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedDate]);
 
   function update<K extends keyof AppointmentBookingDraft>(key: K, value: AppointmentBookingDraft[K]) {
     setDraft((d) => ({ ...d, [key]: value }));
+  }
+
+  function selectDate(iso: string) {
+    setSelectedDate(iso);
+    update("slot", undefined); // the previously chosen time belonged to a different day
   }
 
   function next() {
@@ -45,15 +88,50 @@ export function BookingWizard({ appointmentTypes }: { appointmentTypes: Appointm
     return Object.keys(errs).length === 0;
   }
 
-  function handleSubmit() {
+  async function handleSubmit() {
     if (!validateDetails()) return;
-    // Booking submission architecture: in production this posts to a
-    // server action / API route that writes to the database and triggers
-    // confirmation emails and calendar sync (Calendly / Google / Microsoft).
-    // eslint-disable-next-line no-console
-    console.log("Appointment request submitted", draft);
-    setSubmitted(true);
-    next();
+    if (!draft.slot) return;
+
+    setSubmitting(true);
+    setSubmitError(null);
+    try {
+      const supabase = createClient();
+      const { error } = await supabase.from("appointments").insert({
+        service_area: draft.serviceArea,
+        appointment_type_id: draft.appointmentTypeId,
+        slot_date: draft.slot.date,
+        slot_time: draft.slot.time,
+        name: draft.name,
+        email: draft.email,
+        phone: draft.phone,
+        matter_description: draft.matterDescription ?? "",
+        preferred_contact_method: draft.preferredContactMethod ?? "email",
+        marketing_consent: Boolean(draft.marketingConsent),
+      });
+
+      if (error) {
+        // Unique-violation on (slot_date, slot_time): someone else grabbed
+        // this exact slot between it being shown as free and this submit —
+        // the database is the real source of truth here, not the earlier
+        // availability check. Send them back to pick a different time.
+        if (error.code === "23505") {
+          const takenDate = draft.slot.date;
+          setSubmitError("Sorry — that time was just booked by someone else. Please choose another time.");
+          update("slot", undefined);
+          setStep(2);
+          loadBookedTimes(takenDate);
+          return;
+        }
+        throw error;
+      }
+
+      setSubmitted(true);
+      next();
+    } catch {
+      setSubmitError("Something went wrong submitting your appointment. Please try again.");
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   return (
@@ -109,32 +187,62 @@ export function BookingWizard({ appointmentTypes }: { appointmentTypes: Appointm
 
       {step === 2 && (
         <StepShell title="Choose a date and time" onBack={back}>
-          <div className="max-h-[420px] space-y-5 overflow-y-auto pr-1">
-            {slots.map((day) => (
-              <div key={day.date}>
-                <p className="mb-2 text-sm font-semibold text-navy-700">{formatDate(day.date)}</p>
-                <div className="flex flex-wrap gap-2">
-                  {day.times.map((time) => {
-                    const active = draft.slot?.date === day.date && draft.slot?.time === time;
-                    return (
-                      <button
-                        key={time}
-                        onClick={() => {
-                          update("slot", { date: day.date, time });
-                        }}
-                        className={cn(
-                          "rounded-full border-2 px-4 py-2 text-sm font-semibold transition-colors",
-                          active ? "border-red-500 bg-red-50 text-red-700" : "border-navy-100 text-navy-600 hover:border-navy-300"
-                        )}
-                      >
-                        {time}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-            ))}
+          <div className="grid gap-6 md:grid-cols-[minmax(0,340px)_1fr]">
+            <AppointmentCalendar selectedDate={selectedDate} onSelect={selectDate} isDateDisabled={(d) => !isBookableWeekday(d)} />
+
+            <div>
+              {!selectedDate && <p className="text-sm text-navy-400">Pick a day on the calendar to see available times.</p>}
+
+              {selectedDate && (
+                <>
+                  <p className="mb-3 text-sm font-semibold text-navy-700">{formatDate(selectedDate)}</p>
+
+                  {loadingTimes && (
+                    <p className="flex items-center gap-2 text-sm text-navy-400">
+                      <Loader2 className="h-4 w-4 animate-spin" /> Checking availability…
+                    </p>
+                  )}
+
+                  {!loadingTimes && availabilityError && (
+                    <p className="flex items-center gap-2 text-sm text-red-600">
+                      <AlertCircle className="h-4 w-4" /> {availabilityError}
+                    </p>
+                  )}
+
+                  {!loadingTimes && !availabilityError && (
+                    <div className="flex flex-wrap gap-2">
+                      {DEFAULT_TIME_SLOTS.map((time) => {
+                        const isTaken = bookedTimes.includes(time);
+                        const active = draft.slot?.date === selectedDate && draft.slot?.time === time;
+                        return (
+                          <button
+                            key={time}
+                            type="button"
+                            disabled={isTaken}
+                            onClick={() => update("slot", { date: selectedDate, time })}
+                            title={isTaken ? "Already booked" : undefined}
+                            className={cn(
+                              "rounded-full border-2 px-4 py-2 text-sm font-semibold transition-colors",
+                              isTaken && "cursor-not-allowed border-navy-100 text-navy-300 line-through",
+                              !isTaken && active && "border-red-500 bg-red-50 text-red-700",
+                              !isTaken && !active && "border-navy-100 text-navy-600 hover:border-navy-300"
+                            )}
+                          >
+                            {time}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
+
+                  {!loadingTimes && !availabilityError && bookedTimes.length === DEFAULT_TIME_SLOTS.length && (
+                    <p className="mt-3 text-sm text-navy-400">Fully booked — please try another day.</p>
+                  )}
+                </>
+              )}
+            </div>
           </div>
+
           <div className="mt-6 flex justify-end">
             <GradientButton onClick={next} disabled={!draft.slot} className={!draft.slot ? "opacity-50" : ""}>
               Continue
@@ -189,8 +297,23 @@ export function BookingWizard({ appointmentTypes }: { appointmentTypes: Appointm
               I&rsquo;m happy to receive occasional updates about UK tax, benefits and immigration rules (optional — separate from being contacted about this appointment).
             </label>
           </div>
+
+          {submitError && (
+            <p className="mt-4 flex items-center gap-2 text-sm text-red-600">
+              <AlertCircle className="h-4 w-4 shrink-0" /> {submitError}
+            </p>
+          )}
+
           <div className="mt-6 flex justify-end">
-            <GradientButton onClick={handleSubmit}>Confirm appointment request</GradientButton>
+            <GradientButton onClick={handleSubmit} disabled={submitting} className={submitting ? "opacity-70" : ""}>
+              {submitting ? (
+                <span className="flex items-center gap-2">
+                  <Loader2 className="h-4 w-4 animate-spin" /> Submitting…
+                </span>
+              ) : (
+                "Confirm appointment request"
+              )}
+            </GradientButton>
           </div>
         </StepShell>
       )}
